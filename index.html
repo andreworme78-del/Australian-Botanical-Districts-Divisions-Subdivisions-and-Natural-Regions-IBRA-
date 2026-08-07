@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Australian Botanical Subdivisions - Coordinate Search</title>
+  
+  <!-- Leaflet CSS & JS for OpenStreetMap -->
+  <link rel="stylesheet" href="https://cloudflare.com" />
+  <script src="https://cloudflare.com"></script>
+  
+  <!-- Proj4js Library for coordinate transformations -->
+  <script src="https://cloudflare.com"></script>
+
+  <!-- Leaflet Omnivore Plugin to read Google KML layers -->
+  <script src="https://cloudflare.com"></script>
+
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; display: flex; height: 100vh; background-color: #f4f6f4; }
+    #sidebar { width: 320px; background: #ffffff; padding: 25px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; z-index: 1000; }
+    h2 { color: #2c4c38; margin-top: 0; font-size: 1.4rem; border-bottom: 2px solid #e2ece6; padding-bottom: 10px; }
+    .description { font-size: 0.85rem; color: #556b2f; margin-bottom: 20px; line-height: 1.4; }
+    .input-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.85rem; color: #333; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem; }
+    button { width: 100%; padding: 12px; background: #2c4c38; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+    button:hover { background: #1e3527; }
+    #error-msg { color: #b22222; font-size: 0.85rem; margin-top: 10px; display: none; font-weight: 500; }
+    #map { flex-grow: 1; height: 100%; }
+    @media (max-width: 768px) { body { flex-direction: column-reverse; } #sidebar { width: 100%; } #map { height: 60vh; } }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <h2>Botanical Subdivisions Lookup</h2>
+    <div class="description">Search coordinates to plot botanical field data across Australia. Natively supports standard Lat/Lng or Australian UTM Grid coordinates.</div>
+
+    <div class="input-group">
+      <label for="coord-type">Coordinate Input Type</label>
+      <select id="coord-type">
+        <option value="latlng">Latitude / Longitude (Decimal)</option>
+        <option value="utm">UTM (Easting / Northing)</option>
+      </select>
+    </div>
+
+    <div id="utm-fields" style="display: none;">
+      <div class="input-group">
+        <label for="utm-zone">Australian UTM Zone</label>
+        <select id="utm-zone">
+          <option value="49">Zone 49 (WA West)</option>
+          <option value="50">Zone 50 (WA Central)</option>
+          <option value="51">Zone 51 (WA East / NT West)</option>
+          <option value="52">Zone 52 (NT Central / SA West)</option>
+          <option value="53">Zone 53 (NT East / SA Central)</option>
+          <option value="54">Zone 54 (QLD West / NSW West / SA East)</option>
+          <option value="55">Zone 55 (QLD Central / NSW Central / VIC / TAS)</option>
+          <option value="56">Zone 56 (QLD East / NSW East)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label id="label-x" for="input-x">Latitude (e.g., -33.8688)</label>
+      <input type="text" id="input-x" placeholder="-33.8688">
+    </div>
+
+    <div class="input-group">
+      <label id="label-y" for="input-y">Longitude (e.g., 151.2093)</label>
+      <input type="text" id="input-y" placeholder="151.2093">
+    </div>
+
+    <button id="locate-btn">Locate Subdivision Spot</button>
+    <div id="error-msg"></div>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const map = L.map('map').setView([-27.0, 133.0], 4);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // DYNAMIC DATA INJECTION
+    // This loads your downloaded Google Map layer automatically
+    const customLayer = omnivore.kml('subdivisions.kml')
+      .on('ready', function() {
+        map.fitBounds(customLayer.getBounds()); // Zooms directly to your subdivision shapes on load
+      })
+      .addTo(map);
+
+    let currentMarker = null;
+    const coordTypeSelect = document.getElementById('coord-type');
+    const utmFields = document.getElementById('utm-fields');
+    const labelX = document.getElementById('label-x');
+    const labelY = document.getElementById('label-y');
+    const inputX = document.getElementById('input-x');
+    const inputY = document.getElementById('input-y');
+
+    coordTypeSelect.addEventListener('change', function() {
+      if (this.value === 'utm') {
+        utmFields.style.display = 'block';
+        labelX.innerText = "Easting (6 digits, e.g., 334000)";
+        labelY.innerText = "Northing (7 digits, e.g., 6251000)";
+        inputX.placeholder = "334000";
+        inputY.placeholder = "6251000";
+      } else {
+        utmFields.style.display = 'none';
+        labelX.innerText = "Latitude (e.g., -33.8688)";
+        labelY.innerText = "Longitude (e.g., 151.2093)";
+        inputX.placeholder = "-33.8688";
+        inputY.placeholder = "151.2093";
+      }
+    });
+
+    document.getElementById('locate-btn').addEventListener('click', function() {
+      const errorDiv = document.getElementById('error-msg');
+      errorDiv.style.display = 'none';
+
+      const val1 = parseFloat(inputX.value.trim());
+      const val2 = parseFloat(inputY.value.trim());
+
+      if (isNaN(val1) || isNaN(val2)) {
+        showError("Please enter valid numerical coordinate values.");
+        return;
+      }
+
+      let targetLat, targetLng;
+
+      if (coordTypeSelect.value === 'utm') {
+        const zone = document.getElementById('utm-zone').value;
+        const utmProj = `+proj=utm +zone=${zone} +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
+        const wgs84Proj = "+proj=longlat +datum=WGS84 +no_defs";
+
+        try {
+          const converted = proj4(utmProj, wgs84Proj, [val1, val2]);
+          targetLng = converted[0];
+          targetLat = converted[1];
+
+          if (targetLat < -45 || targetLat > -10 || targetLng < 110 || targetLng > 155) {
+            showError("The converted UTM components fall outside the bounds of Australia.");
+            return;
+          }
+        } catch (err) {
+          showError("Projection failed. Verify your Easting and Northing values.");
+          return;
+        }
+      } else {
+        targetLat = val1;
+        targetLng = val2;
+      }
+
+      if (currentMarker) map.removeLayer(currentMarker);
+
+      currentMarker = L.marker([targetLat, targetLng]).addTo(map)
+        .bindPopup(`<b>Target Field Coordinates</b><br>Lat: ${targetLat.toFixed(5)}<br>Lng: ${targetLng.toFixed(5)}`)
+        .openPopup();
+
+      map.setView([targetLat, targetLng], 14);
+    });
+
+    function showError(text) {
+      const errorDiv = document.getElementById('error-msg');
+      errorDiv.innerText = text;
+      errorDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
