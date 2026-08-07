@@ -16,11 +16,12 @@
   <script src="https://cloudflare.com"></script>
 
   <style>
+    /* Reset layout framework parameters */
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      width: 100%;
+      height: 100% !important;
+      width: 100% !important;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
     }
@@ -31,6 +32,7 @@
     #sidebar { 
       width: 320px; 
       min-width: 320px;
+      max-width: 320px;
       background: #ffffff; 
       padding: 25px; 
       box-shadow: 2px 0 10px rgba(0,0,0,0.1); 
@@ -38,7 +40,7 @@
       flex-direction: column; 
       z-index: 1000; 
       box-sizing: border-box;
-      height: 100vh;
+      height: 100vh !important;
     }
     h2 { color: #2c4c38; margin-top: 0; font-size: 1.4rem; border-bottom: 2px solid #e2ece6; padding-bottom: 10px; }
     .description { font-size: 0.85rem; color: #556b2f; margin-bottom: 20px; line-height: 1.4; }
@@ -49,17 +51,21 @@
     button:hover { background: #1e3527; }
     #error-msg { color: #b22222; font-size: 0.85rem; margin-top: 10px; display: none; font-weight: 500; }
     
+    /* DEFINITIVE FIX: Removes variable flex mechanics. Forces a physical absolute canvas viewport */
     #map { 
-      flex: 1;
-      height: 100vh !important; 
-      width: 100%;
-      background: #d4dadc; /* Base color match */
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 320px; /* Aligns map container flawlessly to the edge of the sidebar */
+      height: 100vh !important;
+      background: #d4dadc; /* Visual test canvas indicator */
     }
     
     @media (max-width: 768px) { 
       body { flex-direction: column-reverse; } 
-      #sidebar { width: 100%; height: auto; } 
-      #map { height: 60vh !important; } 
+      #sidebar { width: 100%; max-width: 100%; height: auto !important; position: relative; } 
+      #map { left: 0; top: 0; height: 60vh !important; position: relative; } 
     }
   </style>
 </head>
@@ -113,7 +119,7 @@
     // Build Leaflet Map Canvas Grid Base - Centers directly over Australia
     const map = L.map('map').setView([-27.0, 133.0], 4);
 
-    // FIXED: CARTO CDN - Ultra secure HTTPS base map tiles that bypass browser network filters
+    // Highly secure cloud server basemap tiles
     L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
       attribution: '©OpenStreetMap, ©CartoDB',
       subdomains: 'abcd',
@@ -126,10 +132,10 @@
       customLayer = omnivore.kml('subdivisions.kml')
         .on('ready', function() {
           console.log("KML data layer processed successfully!");
-          map.fitBounds(customLayer.getBounds()); // Automatically frames your subdivision shapes on complete
+          map.fitBounds(customLayer.getBounds()); 
         })
         .on('error', function(e) {
-          console.error("KML Parse Failure: Map works, but 'subdivisions.kml' has structural formatting problems or is missing.", e);
+          console.error("KML Parse Failure: Map works, but subdivisions data layer has errors or is missing.", e);
         })
         .addTo(map);
     } catch(err) {
@@ -144,17 +150,22 @@
     const inputX = document.getElementById('input-x');
     const inputY = document.getElementById('input-y');
 
+    // FIXED LOGIC LOOP: Correctly updates form elements dynamically on selection
     coordTypeSelect.addEventListener('change', function() {
       if (this.value === 'utm') {
         utmFields.style.display = 'block';
-        labelX.innerText = "Easting (6 digits, e.g., 334000)";
-        labelY.innerText = "Northing (7 digits, e.g., 6251000)";
-        inputX.placeholder = "334000";
-        inputY.placeholder = "6251000";
+        labelX.innerText = "Easting (6 digits, e.g., 294100)";
+        labelY.innerText = "Northing (7 digits, e.g., 6234900)";
+        inputX.value = ""; 
+        inputY.value = "";
+        inputX.placeholder = "294100";
+        inputY.placeholder = "6234900";
       } else {
         utmFields.style.display = 'none';
         labelX.innerText = "Latitude (e.g., -33.8688)";
         labelY.innerText = "Longitude (e.g., 151.2093)";
+        inputX.value = "";
+        inputY.value = "";
         inputX.placeholder = "-33.8688";
         inputY.placeholder = "151.2093";
       }
@@ -185,7 +196,7 @@
           targetLat = converted;
 
           if (targetLat < -45 || targetLat > -10 || targetLng < 110 || targetLng > 155) {
-            showError("The converted UTM components fall outside the bounds of Australia.");
+            showError("The converted UTM components fall outside the bounds of Australia. Check your zone settings.");
             return;
           }
         } catch (err) {
@@ -200,7 +211,7 @@
       if (currentMarker) map.removeLayer(currentMarker);
 
       currentMarker = L.marker([targetLat, targetLng]).addTo(map)
-        .bindPopup(`<b>Target Field Coordinates</b><br>Lat: ${targetLat.toFixed(5)}<br>Lng: ${targetLng.toFixed(5)}`)
+        .bindPopup(`<b>Target Coordinates</b><br>Lat: ${targetLat.toFixed(5)}<br>Lng: ${targetLng.toFixed(5)}`)
         .openPopup();
 
       map.setView([targetLat, targetLng], 14);
