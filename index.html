@@ -46,9 +46,9 @@
     }
 
 
-    /* ==================================================
+    /* ================================
        SIDEBAR
-       ================================================== */
+       ================================ */
 
     #sidebar {
       width: 320px;
@@ -123,9 +123,9 @@
     }
 
 
-    /* ==================================================
+    /* ================================
        MAP
-       ================================================== */
+       ================================ */
 
     #map {
       flex: 1 1 auto;
@@ -134,9 +134,9 @@
     }
 
 
-    /* ==================================================
+    /* ================================
        SUBDIVISION LABELS
-       ================================================== */
+       ================================ */
 
     .subdivision-label {
       background: transparent;
@@ -166,83 +166,9 @@
     }
 
 
-    /* ==================================================
-       CUSTOM MAP LAYER CONTROL
-       ================================================== */
-
-    .map-layer-control {
-      background: rgba(255,255,255,0.96);
-      padding: 12px 14px;
-      border-radius: 5px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 13px;
-
-      min-width: 190px;
-      color: #222;
-    }
-
-    .map-layer-control .control-title {
-      font-weight: 700;
-      font-size: 14px;
-      color: #2c4c38;
-      margin-bottom: 8px;
-    }
-
-    .map-layer-control .control-heading {
-      font-weight: 700;
-      font-size: 12px;
-      color: #555;
-      margin-top: 8px;
-      margin-bottom: 4px;
-      padding-top: 7px;
-      border-top: 1px solid #ddd;
-    }
-
-    .map-layer-control label {
-      display: flex;
-      align-items: center;
-      font-weight: normal;
-      font-size: 12px;
-      margin: 3px 0;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .map-layer-control input[type="checkbox"] {
-      width: auto;
-      margin: 0 7px 0 0;
-      padding: 0;
-      cursor: pointer;
-    }
-
-    .map-layer-control .state-buttons {
-      display: flex;
-      gap: 5px;
-      margin-top: 7px;
-    }
-
-    .map-layer-control .mini-button {
-      flex: 1;
-      width: auto;
-      padding: 4px 6px;
-      border-radius: 3px;
-      font-size: 10px;
-      font-weight: 600;
-      background: #eef2ef;
-      color: #2c4c38;
-      border: 1px solid #ccd6cf;
-    }
-
-    .map-layer-control .mini-button:hover {
-      background: #dde7e0;
-    }
-
-
-    /* ==================================================
+    /* ================================
        MOBILE
-       ================================================== */
+       ================================ */
 
     @media (max-width: 768px) {
 
@@ -258,11 +184,6 @@
         height: 60vh;
       }
 
-      .map-layer-control {
-        max-height: 50vh;
-        overflow-y: auto;
-      }
-
     }
 
   </style>
@@ -273,9 +194,9 @@
 <body>
 
 
-  <!-- ==================================================
+  <!-- ================================
        SIDEBAR
-       ================================================== -->
+       ================================ -->
 
   <div id="sidebar">
 
@@ -286,8 +207,8 @@
     <div class="description">
       Search coordinates to plot botanical field data across Australia.
       Supports standard Latitude / Longitude or Australian UTM Grid coordinates.
-      Use the Map Layers panel to control subdivision outlines, colour,
-      labels and individual states.
+      Use the map layer control to switch subdivision outlines, colour and
+      labels on or off.
     </div>
 
 
@@ -388,9 +309,9 @@
 
 
 
-  <!-- ==================================================
+  <!-- ================================
        MAP
-       ================================================== -->
+       ================================ -->
 
   <div id="map"></div>
 
@@ -399,9 +320,9 @@
   <script>
 
 
-    /* ==================================================
+    /* =====================================================
        CREATE MAP
-       ================================================== */
+       ===================================================== */
 
     const map = L.map("map").setView(
       [-27.0, 133.0],
@@ -409,9 +330,9 @@
     );
 
 
-    /* ==================================================
+    /* =====================================================
        OPENSTREETMAP
-       ================================================== */
+       ===================================================== */
 
     const osm = L.tileLayer(
 
@@ -426,77 +347,36 @@
 
 
 
-    /* ==================================================
-       DISPLAY SETTINGS
-       ================================================== */
+    /* =====================================================
+       CREATE OUR THREE SUBDIVISION LAYERS
+       ===================================================== */
 
-    const displaySettings = {
+    /*
+      1. subdivisionOutlines
+         Contains boundary lines with no fill.
 
-      outlines: true,
-      colour: true,
-      labels: true
+      2. subdivisionColour
+         Contains transparent coloured polygons.
 
-    };
+      3. subdivisionLabels
+         Contains subdivision names.
+    */
 
+    const subdivisionOutlines = L.layerGroup();
 
-    /* ==================================================
-       STATE SETTINGS
-       ================================================== */
+    const subdivisionColour = L.layerGroup();
 
-    const stateSettings = {
-
-      VIC: true,
-      NSW: true,
-      QLD: true,
-      SA: true,
-      WA: true,
-      NT: true,
-      TAS: true
-
-    };
-
-
-    /* ==================================================
-       STATE NAMES
-       ================================================== */
-
-    const stateNames = {
-
-      VIC: "Victoria",
-      NSW: "New South Wales",
-      QLD: "Queensland",
-      SA: "South Australia",
-      WA: "Western Australia",
-      NT: "Northern Territory",
-      TAS: "Tasmania"
-
-    };
-
-
-    /* ==================================================
-       STORAGE FOR ALL SUBDIVISION FEATURES
-       ================================================== */
-
-    const subdivisionFeatures = [];
-
-
-    const allSubdivisionLayers =
-      L.layerGroup().addTo(map);
+    const subdivisionLabels = L.layerGroup();
 
 
 
-    /* ==================================================
-       KML FILE
-       ================================================== */
+    /* =====================================================
+       LOAD AND PARSE KML DIRECTLY
+       ===================================================== */
 
     const kmlFile =
       "Australian Botanical Subdivisions.kml";
 
-
-
-    /* ==================================================
-       LOAD KML
-       ================================================== */
 
     fetch(kmlFile)
 
@@ -517,6 +397,14 @@
       .then(function(kmlText) {
 
 
+        /*
+          Convert the raw KML text into an XML document.
+
+          This lets us read the REAL <Placemark><name>
+          directly instead of depending on inconsistent
+          ExtendedData attribute fields.
+        */
+
         const parser =
           new DOMParser();
 
@@ -529,129 +417,10 @@
 
 
         /*
-          Detect XML parsing errors.
+          Find every Placemark in the KML.
         */
 
-        const parserErrors =
-          kmlDocument.getElementsByTagName(
-            "parsererror"
-          );
-
-
-        if (parserErrors.length > 0) {
-
-          throw new Error(
-            "The KML file could not be parsed."
-          );
-
-        }
-
-
-
-        const allBounds =
-          L.latLngBounds([]);
-
-
-
-        /* ==================================================
-           READ KML FOLDERS
-           ================================================== */
-
-        const folders =
-          Array.from(
-            kmlDocument.getElementsByTagNameNS(
-              "*",
-              "Folder"
-            )
-          );
-
-
-
-        folders.forEach(
-
-          function(folder) {
-
-
-            /*
-              Read the direct <name> of this folder.
-            */
-
-            const folderName =
-              getDirectChildText(
-                folder,
-                "name"
-              );
-
-
-            /*
-              Determine which state this folder represents.
-            */
-
-            const stateCode =
-              identifyState(
-                folderName
-              );
-
-
-            /*
-              If this folder isn't a recognised state
-              subdivision folder, skip it here.
-            */
-
-            if (!stateCode) {
-
-              return;
-
-            }
-
-
-
-            /*
-              Get Placemarks directly belonging to this folder.
-            */
-
-            const placemarks =
-              getDirectChildrenByTagName(
-                folder,
-                "Placemark"
-              );
-
-
-
-            placemarks.forEach(
-
-              function(placemark) {
-
-
-                processPlacemark(
-                  placemark,
-                  stateCode,
-                  allBounds
-                );
-
-
-              }
-
-            );
-
-
-          }
-
-        );
-
-
-
-        /* ==================================================
-           FALLBACK FOR UNASSIGNED PLACEMARKS
-           ================================================== */
-
-        /*
-          In case a state in the KML uses nested folders,
-          check every Placemark that hasn't already been
-          processed.
-        */
-
-        const allPlacemarks =
+        const placemarks =
           Array.from(
             kmlDocument.getElementsByTagNameNS(
               "*",
@@ -660,94 +429,318 @@
           );
 
 
-        allPlacemarks.forEach(
+        /*
+          Bounds covering all subdivisions.
+        */
+
+        const allBounds =
+          L.latLngBounds([]);
+
+
+
+        /* =================================================
+           PROCESS EACH PLACEMARK
+           ================================================= */
+
+        placemarks.forEach(
 
           function(placemark) {
 
 
-            if (
-              placemark.__processedByMap
-            ) {
+            /* ---------------------------------------------
+               READ REAL KML PLACEMARK NAME
+               --------------------------------------------- */
 
-              return;
+            let subdivisionName =
+              "Unnamed subdivision";
+
+
+            const nameElements =
+              placemark.getElementsByTagNameNS(
+                "*",
+                "name"
+              );
+
+
+            if (nameElements.length > 0) {
+
+              const nameText =
+                nameElements[0]
+                  .textContent
+                  .trim();
+
+
+              if (nameText) {
+
+                subdivisionName =
+                  nameText;
+
+              }
 
             }
 
 
-            /*
-              Walk upward through its parent folders.
-            */
 
-            let parent =
-              placemark.parentNode;
+            /* ---------------------------------------------
+               CREATE A MINI KML DOCUMENT FOR THIS PLACEMARK
+               --------------------------------------------- */
 
-
-            let detectedState =
-              null;
-
-
-            while (
-              parent &&
-              parent !== kmlDocument
-            ) {
+            const miniKml =
+              document.implementation
+                .createDocument(
+                  "http://www.opengis.net/kml/2.2",
+                  "kml",
+                  null
+                );
 
 
-              if (
-                parent.localName ===
-                "Folder"
-              ) {
+            const miniDocument =
+              miniKml.createElementNS(
+                "http://www.opengis.net/kml/2.2",
+                "Document"
+              );
 
 
-                const parentFolderName =
-                  getDirectChildText(
-                    parent,
-                    "name"
+            miniKml.documentElement
+              .appendChild(
+                miniDocument
+              );
+
+
+            miniDocument.appendChild(
+
+              miniKml.importNode(
+                placemark,
+                true
+              )
+
+            );
+
+
+            const serializer =
+              new XMLSerializer();
+
+
+            const miniKmlText =
+              serializer.serializeToString(
+                miniKml
+              );
+
+
+
+            /* ---------------------------------------------
+               PARSE GEOMETRY USING OMNIVORE
+               --------------------------------------------- */
+
+            const tempLayer =
+              omnivore.kml.parse(
+                miniKmlText
+              );
+
+
+
+            /* ---------------------------------------------
+               PROCESS EACH GEOMETRY
+               --------------------------------------------- */
+
+            tempLayer.eachLayer(
+
+              function(layer) {
+
+
+                if (!layer.getBounds) {
+
+                  return;
+
+                }
+
+
+                const bounds =
+                  layer.getBounds();
+
+
+                if (!bounds.isValid()) {
+
+                  return;
+
+                }
+
+
+                allBounds.extend(
+                  bounds
+                );
+
+
+
+                /* =========================================
+                   OUTLINE LAYER
+                   ========================================= */
+
+                if (layer.toGeoJSON) {
+
+
+                  const geojson =
+                    layer.toGeoJSON();
+
+
+                  const outlineLayer =
+                    L.geoJSON(
+
+                      geojson,
+
+                      {
+
+                        style: {
+
+                          color: "#c0392b",
+
+                          weight: 1.5,
+
+                          opacity: 0.9,
+
+                          fill: false,
+
+                          fillOpacity: 0
+
+                        }
+
+                      }
+
+                    );
+
+
+                  outlineLayer.bindPopup(
+
+                    "<strong>" +
+                    escapeHtml(
+                      subdivisionName
+                    ) +
+                    "</strong>"
+
                   );
 
 
-                detectedState =
-                  identifyState(
-                    parentFolderName
+                  subdivisionOutlines.addLayer(
+                    outlineLayer
                   );
 
 
-                if (detectedState) {
 
-                  break;
+                  /* =======================================
+                     COLOUR / HIGHLIGHT LAYER
+                     ======================================= */
+
+                  const colourLayer =
+                    L.geoJSON(
+
+                      geojson,
+
+                      {
+
+                        style: {
+
+                          color: "transparent",
+
+                          weight: 0,
+
+                          fillColor: "#d95f4f",
+
+                          fill: true,
+
+                          fillOpacity: 0.20
+
+                        }
+
+                      }
+
+                    );
+
+
+                  /*
+                    Do not let the colour layer block
+                    clicks on the outline underneath.
+                  */
+
+                  colourLayer.eachLayer(
+
+                    function(colourPart) {
+
+                      if (
+                        colourPart.options
+                      ) {
+
+                        colourPart.options
+                          .interactive = false;
+
+                      }
+
+                    }
+
+                  );
+
+
+                  subdivisionColour.addLayer(
+                    colourLayer
+                  );
 
                 }
 
               }
 
-
-              parent =
-                parent.parentNode;
-
-            }
+            );
 
 
 
-            /*
-              Attribute fallback.
-            */
+            /* ---------------------------------------------
+               ONE LABEL PER NAMED SUBDIVISION
+               --------------------------------------------- */
 
-            if (!detectedState) {
+            if (
+              tempLayer.getBounds &&
+              tempLayer.getBounds().isValid()
+            ) {
 
-              detectedState =
-                identifyStateFromAttributes(
-                  placemark
+
+              const centre =
+                tempLayer
+                  .getBounds()
+                  .getCenter();
+
+
+              const labelMarker =
+                L.marker(
+
+                  centre,
+
+                  {
+
+                    interactive: false,
+
+                    icon: L.divIcon(
+
+                      {
+
+                        className:
+                          "subdivision-label",
+
+                        html:
+                          escapeHtml(
+                            subdivisionName
+                          ),
+
+                        iconSize: null
+
+                      }
+
+                    )
+
+                  }
+
                 );
 
-            }
 
-
-
-            if (detectedState) {
-
-              processPlacemark(
-                placemark,
-                detectedState,
-                allBounds
+              subdivisionLabels.addLayer(
+                labelMarker
               );
 
             }
@@ -759,25 +752,26 @@
 
 
 
-        /* ==================================================
-           DRAW EVERYTHING
-           ================================================== */
+        /* =================================================
+           ADD DEFAULT LAYERS
+           ================================================= */
 
-        refreshSubdivisionDisplay();
+        subdivisionOutlines.addTo(map);
+
+        subdivisionColour.addTo(map);
+
+        subdivisionLabels.addTo(map);
 
 
 
-        /* ==================================================
-           FIT AUSTRALIA
-           ================================================== */
+        /* =================================================
+           ZOOM TO ALL SUBDIVISIONS
+           ================================================= */
 
         if (allBounds.isValid()) {
 
           map.fitBounds(
-            allBounds,
-            {
-              padding: [10,10]
-            }
+            allBounds
           );
 
         }
@@ -804,1300 +798,51 @@
 
 
 
-    /* ==================================================
-       PROCESS ONE PLACEMARK
-       ================================================== */
+    /* =====================================================
+       LAYER CONTROL
+       ===================================================== */
 
-    function processPlacemark(
-      placemark,
-      stateCode,
-      allBounds
-    ) {
+    const baseMaps = {
+
+      "OpenStreetMap":
+        osm
+
+    };
 
 
-      if (
-        placemark.__processedByMap
-      ) {
+    const overlayMaps = {
 
-        return;
+      "Botanical Subdivisions":
+        subdivisionOutlines,
 
+      "Subdivision Colour":
+        subdivisionColour,
+
+      "Subdivision Labels":
+        subdivisionLabels
+
+    };
+
+
+    L.control.layers(
+
+      baseMaps,
+
+      overlayMaps,
+
+      {
+        collapsed: false
       }
 
+    ).addTo(map);
 
-      placemark.__processedByMap =
-        true;
 
 
-
-      /* --------------------------------------------------
-         READ THE REAL PLACEMARK NAME
-         -------------------------------------------------- */
-
-      let subdivisionName =
-        getDirectChildText(
-          placemark,
-          "name"
-        );
-
-
-      if (!subdivisionName) {
-
-        subdivisionName =
-          findNameFromAttributes(
-            placemark
-          );
-
-      }
-
-
-      if (!subdivisionName) {
-
-        subdivisionName =
-          "Unnamed subdivision";
-
-      }
-
-
-
-      /* --------------------------------------------------
-         CREATE MINI KML
-         -------------------------------------------------- */
-
-      const miniKml =
-        document.implementation
-          .createDocument(
-            "http://www.opengis.net/kml/2.2",
-            "kml",
-            null
-          );
-
-
-      const miniDocument =
-        miniKml.createElementNS(
-          "http://www.opengis.net/kml/2.2",
-          "Document"
-        );
-
-
-      miniKml.documentElement
-        .appendChild(
-          miniDocument
-        );
-
-
-      miniDocument.appendChild(
-
-        miniKml.importNode(
-          placemark,
-          true
-        )
-
-      );
-
-
-      const serializer =
-        new XMLSerializer();
-
-
-      const miniKmlText =
-        serializer.serializeToString(
-          miniKml
-        );
-
-
-
-      /* --------------------------------------------------
-         PARSE GEOMETRY
-         -------------------------------------------------- */
-
-      const tempLayer =
-        omnivore.kml.parse(
-          miniKmlText
-        );
-
-
-      if (
-        !tempLayer ||
-        !tempLayer.getBounds ||
-        !tempLayer.getBounds().isValid()
-      ) {
-
-        return;
-
-      }
-
-
-
-      const featureBounds =
-        tempLayer.getBounds();
-
-
-      allBounds.extend(
-        featureBounds
-      );
-
-
-
-      /* --------------------------------------------------
-         CREATE FEATURE GROUPS
-         -------------------------------------------------- */
-
-      const outlineGroup =
-        L.layerGroup();
-
-
-      const colourGroup =
-        L.layerGroup();
-
-
-
-      tempLayer.eachLayer(
-
-        function(layer) {
-
-
-          if (!layer.toGeoJSON) {
-
-            return;
-
-          }
-
-
-          const geojson =
-            layer.toGeoJSON();
-
-
-
-          /* ==============================================
-             OUTLINE
-             ============================================== */
-
-          const outlineLayer =
-            L.geoJSON(
-
-              geojson,
-
-              {
-
-                style: {
-
-                  color: "#c0392b",
-
-                  weight: 1.5,
-
-                  opacity: 0.9,
-
-                  fill: false,
-
-                  fillOpacity: 0
-
-                }
-
-              }
-
-            );
-
-
-          outlineLayer.bindPopup(
-
-            "<strong>" +
-            escapeHtml(
-              subdivisionName
-            ) +
-            "</strong><br>" +
-            escapeHtml(
-              stateNames[stateCode]
-            )
-
-          );
-
-
-          outlineGroup.addLayer(
-            outlineLayer
-          );
-
-
-
-          /* ==============================================
-             COLOUR
-             ============================================== */
-
-          const colourLayer =
-            L.geoJSON(
-
-              geojson,
-
-              {
-
-                style: {
-
-                  color: "transparent",
-
-                  weight: 0,
-
-                  fillColor: "#d95f4f",
-
-                  fill: true,
-
-                  fillOpacity: 0.20
-
-                },
-
-                interactive: false
-
-              }
-
-            );
-
-
-          colourGroup.addLayer(
-            colourLayer
-          );
-
-
-        }
-
-      );
-
-
-
-      /* --------------------------------------------------
-         CREATE ONE LABEL FOR THIS SUBDIVISION
-         -------------------------------------------------- */
-
-      const labelCentre =
-        featureBounds.getCenter();
-
-
-      const labelLayer =
-        L.marker(
-
-          labelCentre,
-
-          {
-
-            interactive: false,
-
-            icon: L.divIcon(
-
-              {
-
-                className:
-                  "subdivision-label",
-
-                html:
-                  escapeHtml(
-                    subdivisionName
-                  ),
-
-                iconSize: null
-
-              }
-
-            )
-
-          }
-
-        );
-
-
-
-      /* --------------------------------------------------
-         STORE FEATURE
-         -------------------------------------------------- */
-
-      subdivisionFeatures.push(
-
-        {
-
-          name:
-            subdivisionName,
-
-          state:
-            stateCode,
-
-          outline:
-            outlineGroup,
-
-          colour:
-            colourGroup,
-
-          label:
-            labelLayer
-
-        }
-
-      );
-
-
-    }
-
-
-
-    /* ==================================================
-       REFRESH DISPLAY
-       ================================================== */
-
-    function refreshSubdivisionDisplay() {
-
-
-      allSubdivisionLayers.clearLayers();
-
-
-
-      subdivisionFeatures.forEach(
-
-        function(feature) {
-
-
-          /*
-            Is this state switched on?
-          */
-
-          if (
-            !stateSettings[
-              feature.state
-            ]
-          ) {
-
-            return;
-
-          }
-
-
-
-          /*
-            Outline
-          */
-
-          if (
-            displaySettings.outlines
-          ) {
-
-            allSubdivisionLayers.addLayer(
-              feature.outline
-            );
-
-          }
-
-
-
-          /*
-            Colour
-          */
-
-          if (
-            displaySettings.colour
-          ) {
-
-            allSubdivisionLayers.addLayer(
-              feature.colour
-            );
-
-          }
-
-
-
-          /*
-            Labels
-          */
-
-          if (
-            displaySettings.labels
-          ) {
-
-            allSubdivisionLayers.addLayer(
-              feature.label
-            );
-
-          }
-
-
-        }
-
-      );
-
-
-    }
-
-
-
-    /* ==================================================
-       CUSTOM MAP LAYERS CONTROL
-       ================================================== */
-
-    const MapLayerControl =
-      L.Control.extend(
-
-        {
-
-          options: {
-
-            position:
-              "topright"
-
-          },
-
-
-          onAdd: function(map) {
-
-
-            const container =
-              L.DomUtil.create(
-                "div",
-                "map-layer-control"
-              );
-
-
-            container.innerHTML = `
-
-              <div class="control-title">
-                Map Layers
-              </div>
-
-
-              <div class="control-heading">
-                Display
-              </div>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  id="toggle-outlines"
-                  checked
-                >
-                Subdivision outlines
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  id="toggle-colour"
-                  checked
-                >
-                Subdivision colour
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  id="toggle-labels"
-                  checked
-                >
-                Subdivision labels
-              </label>
-
-
-              <div class="control-heading">
-                States & Territories
-              </div>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  class="state-toggle"
-                  data-state="VIC"
-                  checked
-                >
-                Victoria
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  class="state-toggle"
-                  data-state="NSW"
-                  checked
-                >
-                New South Wales
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  class="state-toggle"
-                  data-state="QLD"
-                  checked
-                >
-                Queensland
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  class="state-toggle"
-                  data-state="SA"
-                  checked
-                >
-                South Australia
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  class="state-toggle"
-                  data-state="WA"
-                  checked
-                >
-                Western Australia
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  class="state-toggle"
-                  data-state="NT"
-                  checked
-                >
-                Northern Territory
-              </label>
-
-
-              <label>
-                <input
-                  type="checkbox"
-                  class="state-toggle"
-                  data-state="TAS"
-                  checked
-                >
-                Tasmania
-              </label>
-
-
-              <div class="state-buttons">
-
-                <button
-                  type="button"
-                  class="mini-button"
-                  id="all-states"
-                >
-                  All
-                </button>
-
-                <button
-                  type="button"
-                  class="mini-button"
-                  id="no-states"
-                >
-                  None
-                </button>
-
-              </div>
-
-            `;
-
-
-
-            /*
-              Prevent clicks in the control from
-              moving/zooming the map.
-            */
-
-            L.DomEvent.disableClickPropagation(
-              container
-            );
-
-
-            L.DomEvent.disableScrollPropagation(
-              container
-            );
-
-
-
-            /*
-              Attach events after Leaflet has
-              inserted the control.
-            */
-
-            setTimeout(
-
-              function() {
-
-                setupLayerControlEvents(
-                  container
-                );
-
-              },
-
-              0
-
-            );
-
-
-            return container;
-
-          }
-
-        }
-
-      );
-
-
-    map.addControl(
-      new MapLayerControl()
-    );
-
-
-
-    /* ==================================================
-       LAYER CONTROL EVENTS
-       ================================================== */
-
-    function setupLayerControlEvents(
-      container
-    ) {
-
-
-      const outlineCheckbox =
-        container.querySelector(
-          "#toggle-outlines"
-        );
-
-
-      const colourCheckbox =
-        container.querySelector(
-          "#toggle-colour"
-        );
-
-
-      const labelCheckbox =
-        container.querySelector(
-          "#toggle-labels"
-        );
-
-
-
-      outlineCheckbox.addEventListener(
-
-        "change",
-
-        function() {
-
-          displaySettings.outlines =
-            this.checked;
-
-
-          refreshSubdivisionDisplay();
-
-        }
-
-      );
-
-
-
-      colourCheckbox.addEventListener(
-
-        "change",
-
-        function() {
-
-          displaySettings.colour =
-            this.checked;
-
-
-          refreshSubdivisionDisplay();
-
-        }
-
-      );
-
-
-
-      labelCheckbox.addEventListener(
-
-        "change",
-
-        function() {
-
-          displaySettings.labels =
-            this.checked;
-
-
-          refreshSubdivisionDisplay();
-
-        }
-
-      );
-
-
-
-      const stateCheckboxes =
-        container.querySelectorAll(
-          ".state-toggle"
-        );
-
-
-
-      stateCheckboxes.forEach(
-
-        function(checkbox) {
-
-
-          checkbox.addEventListener(
-
-            "change",
-
-            function() {
-
-
-              const state =
-                this.dataset.state;
-
-
-              stateSettings[state] =
-                this.checked;
-
-
-              refreshSubdivisionDisplay();
-
-
-            }
-
-          );
-
-
-        }
-
-      );
-
-
-
-      /* --------------------------------------------------
-         ALL STATES
-         -------------------------------------------------- */
-
-      container
-        .querySelector(
-          "#all-states"
-        )
-        .addEventListener(
-
-          "click",
-
-          function() {
-
-
-            stateCheckboxes.forEach(
-
-              function(checkbox) {
-
-
-                checkbox.checked =
-                  true;
-
-
-                stateSettings[
-                  checkbox.dataset.state
-                ] = true;
-
-
-              }
-
-            );
-
-
-            refreshSubdivisionDisplay();
-
-
-          }
-
-        );
-
-
-
-      /* --------------------------------------------------
-         NO STATES
-         -------------------------------------------------- */
-
-      container
-        .querySelector(
-          "#no-states"
-        )
-        .addEventListener(
-
-          "click",
-
-          function() {
-
-
-            stateCheckboxes.forEach(
-
-              function(checkbox) {
-
-
-                checkbox.checked =
-                  false;
-
-
-                stateSettings[
-                  checkbox.dataset.state
-                ] = false;
-
-
-              }
-
-            );
-
-
-            refreshSubdivisionDisplay();
-
-
-          }
-
-        );
-
-
-    }
-
-
-
-    /* ==================================================
-       IDENTIFY STATE FROM FOLDER NAME
-       ================================================== */
-
-    function identifyState(
-      folderName
-    ) {
-
-
-      if (!folderName) {
-
-        return null;
-
-      }
-
-
-      const name =
-        folderName
-          .toLowerCase()
-          .trim();
-
-
-
-      if (
-        name.includes("victoria") ||
-        name.includes("victorian")
-      ) {
-
-        return "VIC";
-
-      }
-
-
-      if (
-        name.includes("new south wales") ||
-        name.includes("nsw")
-      ) {
-
-        return "NSW";
-
-      }
-
-
-      if (
-        name.includes("queensland") ||
-        name.includes("qld")
-      ) {
-
-        return "QLD";
-
-      }
-
-
-      if (
-        name.includes("south australia") ||
-        name.includes("south australian")
-      ) {
-
-        return "SA";
-
-      }
-
-
-      if (
-        name.includes("western australia") ||
-        name.includes("western australian")
-      ) {
-
-        return "WA";
-
-      }
-
-
-      if (
-        name.includes("northern territory") ||
-        name.includes("northern territorial") ||
-        name.includes("nt subdivisions")
-      ) {
-
-        return "NT";
-
-      }
-
-
-      if (
-        name.includes("tasmania") ||
-        name.includes("tasmanian")
-      ) {
-
-        return "TAS";
-
-      }
-
-
-      return null;
-
-
-    }
-
-
-
-    /* ==================================================
-       ATTRIBUTE FALLBACK FOR STATE
-       ================================================== */
-
-    function identifyStateFromAttributes(
-      placemark
-    ) {
-
-
-      const dataElements =
-        Array.from(
-          placemark.getElementsByTagNameNS(
-            "*",
-            "Data"
-          )
-        );
-
-
-      for (
-        const dataElement of dataElements
-      ) {
-
-
-        const fieldName =
-          (
-            dataElement.getAttribute(
-              "name"
-            ) || ""
-          )
-          .toLowerCase();
-
-
-        if (
-          fieldName === "state" ||
-          fieldName === "state_code" ||
-          fieldName === "statecode"
-        ) {
-
-
-          const valueElements =
-            dataElement
-              .getElementsByTagNameNS(
-                "*",
-                "value"
-              );
-
-
-          if (
-            valueElements.length === 0
-          ) {
-
-            continue;
-
-          }
-
-
-          const value =
-            valueElements[0]
-              .textContent
-              .trim()
-              .toUpperCase();
-
-
-
-          if (
-            value === "VIC" ||
-            value === "VICTORIA"
-          ) {
-
-            return "VIC";
-
-          }
-
-
-          if (
-            value === "NSW" ||
-            value === "NEW SOUTH WALES"
-          ) {
-
-            return "NSW";
-
-          }
-
-
-          if (
-            value === "QLD" ||
-            value === "QUEENSLAND"
-          ) {
-
-            return "QLD";
-
-          }
-
-
-          if (
-            value === "SA" ||
-            value === "SOUTH AUSTRALIA"
-          ) {
-
-            return "SA";
-
-          }
-
-
-          if (
-            value === "WA" ||
-            value === "WESTERN AUSTRALIA"
-          ) {
-
-            return "WA";
-
-          }
-
-
-          if (
-            value === "NT" ||
-            value === "NORTHERN TERRITORY"
-          ) {
-
-            return "NT";
-
-          }
-
-
-          if (
-            value === "TAS" ||
-            value === "TASMANIA"
-          ) {
-
-            return "TAS";
-
-          }
-
-
-        }
-
-
-      }
-
-
-      return null;
-
-
-    }
-
-
-
-    /* ==================================================
-       GET DIRECT CHILD TEXT
-       ================================================== */
-
-    function getDirectChildText(
-      parent,
-      tagName
-    ) {
-
-
-      for (
-        const child of parent.children
-      ) {
-
-
-        if (
-          child.localName ===
-          tagName
-        ) {
-
-
-          return child
-            .textContent
-            .trim();
-
-        }
-
-
-      }
-
-
-      return "";
-
-
-    }
-
-
-
-    /* ==================================================
-       GET DIRECT CHILD ELEMENTS
-       ================================================== */
-
-    function getDirectChildrenByTagName(
-      parent,
-      tagName
-    ) {
-
-
-      const results = [];
-
-
-      for (
-        const child of parent.children
-      ) {
-
-
-        if (
-          child.localName ===
-          tagName
-        ) {
-
-
-          results.push(
-            child
-          );
-
-        }
-
-
-      }
-
-
-      return results;
-
-
-    }
-
-
-
-    /* ==================================================
-       FALLBACK NAME FROM ATTRIBUTES
-       ================================================== */
-
-    function findNameFromAttributes(
-      placemark
-    ) {
-
-
-      const preferredFields = [
-
-        "name",
-        "subdivision",
-        "subdiv",
-        "region",
-        "region_name",
-        "reg_name",
-        "district",
-        "district_name"
-
-      ];
-
-
-
-      const dataElements =
-        Array.from(
-          placemark.getElementsByTagNameNS(
-            "*",
-            "Data"
-          )
-        );
-
-
-
-      for (
-        const preferredField of preferredFields
-      ) {
-
-
-        for (
-          const dataElement of dataElements
-        ) {
-
-
-          const fieldName =
-            (
-              dataElement.getAttribute(
-                "name"
-              ) || ""
-            )
-            .toLowerCase();
-
-
-          if (
-            fieldName !==
-            preferredField
-          ) {
-
-            continue;
-
-          }
-
-
-          const valueElements =
-            dataElement
-              .getElementsByTagNameNS(
-                "*",
-                "value"
-              );
-
-
-          if (
-            valueElements.length > 0
-          ) {
-
-
-            const value =
-              valueElements[0]
-                .textContent
-                .trim();
-
-
-            if (value) {
-
-              return value;
-
-            }
-
-
-          }
-
-
-        }
-
-
-      }
-
-
-      return "";
-
-
-    }
-
-
-
-    /* ==================================================
+    /* =====================================================
        COORDINATE SEARCH
-       ================================================== */
+       ===================================================== */
 
-    let currentMarker =
-      null;
+    let currentMarker = null;
 
 
     const coordTypeSelect =
@@ -2137,9 +882,9 @@
 
 
 
-    /* ==================================================
-       CHANGE COORDINATE TYPE
-       ================================================== */
+    /* =====================================================
+       SWITCH COORDINATE TYPE
+       ===================================================== */
 
     coordTypeSelect.addEventListener(
 
@@ -2149,8 +894,7 @@
 
 
         if (
-          this.value ===
-          "utm"
+          this.value === "utm"
         ) {
 
 
@@ -2209,9 +953,9 @@
 
 
 
-    /* ==================================================
+    /* =====================================================
        LOCATE BUTTON
-       ================================================== */
+       ===================================================== */
 
     document
       .getElementById(
@@ -2271,9 +1015,9 @@
 
 
 
-          /* ==============================================
+          /* ===============================================
              UTM
-             ============================================== */
+             =============================================== */
 
           if (
             coordTypeSelect.value ===
@@ -2373,9 +1117,9 @@
 
 
 
-          /* ==============================================
+          /* ===============================================
              LATITUDE / LONGITUDE
-             ============================================== */
+             =============================================== */
 
           else {
 
@@ -2388,6 +1132,9 @@
               val2;
 
 
+            /*
+              Basic validation for decimal coordinates.
+            */
 
             if (
 
@@ -2416,13 +1163,11 @@
 
 
 
-          /* ==============================================
-             REMOVE OLD MARKER
-             ============================================== */
+          /* ===============================================
+             REMOVE PREVIOUS MARKER
+             =============================================== */
 
-          if (
-            currentMarker
-          ) {
+          if (currentMarker) {
 
 
             map.removeLayer(
@@ -2434,9 +1179,9 @@
 
 
 
-          /* ==============================================
+          /* ===============================================
              ADD NEW MARKER
-             ============================================== */
+             =============================================== */
 
           currentMarker =
 
@@ -2481,13 +1226,11 @@
 
 
 
-    /* ==================================================
-       ESCAPE TEXT
-       ================================================== */
+    /* =====================================================
+       ESCAPE KML TEXT FOR SAFE HTML DISPLAY
+       ===================================================== */
 
-    function escapeHtml(
-      text
-    ) {
+    function escapeHtml(text) {
 
 
       const div =
@@ -2507,13 +1250,11 @@
 
 
 
-    /* ==================================================
+    /* =====================================================
        ERROR MESSAGE
-       ================================================== */
+       ===================================================== */
 
-    function showError(
-      text
-    ) {
+    function showError(text) {
 
 
       const errorDiv =
