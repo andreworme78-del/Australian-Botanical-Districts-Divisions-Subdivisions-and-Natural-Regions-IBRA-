@@ -18,14 +18,14 @@
   <!-- Leaflet JS -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    integrity="sha256-20nQCchB9coqIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin="">
   </script>
 
   <!-- Proj4js for UTM conversion -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.min.js"></script>
 
-  <!-- Leaflet Omnivore for reading KML -->
+  <!-- Leaflet Omnivore -->
   <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
 
 
@@ -38,7 +38,6 @@
       height: 100%;
     }
 
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       display: flex;
@@ -47,21 +46,20 @@
     }
 
 
-    /* ==========================================
+    /* ================================
        SIDEBAR
-       ========================================== */
+       ================================ */
 
     #sidebar {
       width: 320px;
       background: #ffffff;
       padding: 25px;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
       z-index: 1000;
       box-sizing: border-box;
     }
-
 
     h2 {
       color: #2c4c38;
@@ -71,7 +69,6 @@
       padding-bottom: 10px;
     }
 
-
     .description {
       font-size: 0.85rem;
       color: #556b2f;
@@ -79,31 +76,27 @@
       line-height: 1.4;
     }
 
-
     .input-group {
       margin-bottom: 15px;
     }
-
 
     label {
       display: block;
       font-weight: bold;
       margin-bottom: 5px;
       font-size: 0.85rem;
-      color: #333333;
+      color: #333;
     }
-
 
     input,
     select {
       width: 100%;
       padding: 10px;
-      border: 1px solid #cccccc;
+      border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
       font-size: 0.9rem;
     }
-
 
     button {
       width: 100%;
@@ -117,11 +110,9 @@
       font-size: 0.95rem;
     }
 
-
     button:hover {
       background: #1e3527;
     }
-
 
     #error-msg {
       color: #b22222;
@@ -132,9 +123,9 @@
     }
 
 
-    /* ==========================================
+    /* ================================
        MAP
-       ========================================== */
+       ================================ */
 
     #map {
       flex: 1 1 auto;
@@ -143,22 +134,21 @@
     }
 
 
-    /* ==========================================
+    /* ================================
        SUBDIVISION LABELS
-       ========================================== */
+       ================================ */
 
     .subdivision-label {
       background: transparent;
       border: none;
       box-shadow: none;
 
-      color: #222222;
+      color: #202020;
 
       font-size: 11px;
       font-weight: 600;
 
       text-align: center;
-
       white-space: nowrap;
 
       pointer-events: none;
@@ -171,15 +161,14 @@
          0px  0px 3px #ffffff;
     }
 
-
     .subdivision-label::before {
       display: none;
     }
 
 
-    /* ==========================================
+    /* ================================
        MOBILE
-       ========================================== */
+       ================================ */
 
     @media (max-width: 768px) {
 
@@ -187,11 +176,9 @@
         flex-direction: column-reverse;
       }
 
-
       #sidebar {
         width: 100%;
       }
-
 
       #map {
         height: 60vh;
@@ -207,38 +194,29 @@
 <body>
 
 
-  <!-- ==========================================
+  <!-- ================================
        SIDEBAR
-       ========================================== -->
+       ================================ -->
 
   <div id="sidebar">
-
 
     <h2>
       Botanical Subdivisions Lookup
     </h2>
 
-
     <div class="description">
-
       Search coordinates to plot botanical field data across Australia.
-
       Supports standard Latitude / Longitude or Australian UTM Grid coordinates.
-
-      Use the layer control on the map to switch botanical subdivisions and
-      subdivision labels on or off.
-
+      Use the map layer control to switch subdivision outlines, colour and
+      labels on or off.
     </div>
 
-
-    <!-- Coordinate type -->
 
     <div class="input-group">
 
       <label for="coord-type">
         Coordinate Input Type
       </label>
-
 
       <select id="coord-type">
 
@@ -255,66 +233,34 @@
     </div>
 
 
-
-    <!-- UTM zone -->
-
     <div
       id="utm-fields"
-      style="display: none;"
+      style="display:none;"
     >
 
       <div class="input-group">
-
 
         <label for="utm-zone">
           Australian UTM Zone
         </label>
 
-
         <select id="utm-zone">
 
-          <option value="49">
-            Zone 49 (WA West)
-          </option>
-
-          <option value="50">
-            Zone 50 (WA Central)
-          </option>
-
-          <option value="51">
-            Zone 51 (WA East / NT West)
-          </option>
-
-          <option value="52">
-            Zone 52 (NT Central / SA West)
-          </option>
-
-          <option value="53">
-            Zone 53 (NT East / SA Central)
-          </option>
-
-          <option value="54">
-            Zone 54 (QLD West / NSW West / SA East)
-          </option>
-
-          <option value="55">
-            Zone 55 (QLD Central / NSW Central / VIC / TAS)
-          </option>
-
-          <option value="56">
-            Zone 56 (QLD East / NSW East)
-          </option>
+          <option value="49">Zone 49 (WA West)</option>
+          <option value="50">Zone 50 (WA Central)</option>
+          <option value="51">Zone 51 (WA East / NT West)</option>
+          <option value="52">Zone 52 (NT Central / SA West)</option>
+          <option value="53">Zone 53 (NT East / SA Central)</option>
+          <option value="54">Zone 54 (QLD West / NSW West / SA East)</option>
+          <option value="55">Zone 55 (QLD Central / NSW Central / VIC / TAS)</option>
+          <option value="56">Zone 56 (QLD East / NSW East)</option>
 
         </select>
-
 
       </div>
 
     </div>
 
-
-
-    <!-- First coordinate -->
 
     <div class="input-group">
 
@@ -322,11 +268,8 @@
         id="label-x"
         for="input-x"
       >
-
         Latitude (e.g., -33.8688)
-
       </label>
-
 
       <input
         type="text"
@@ -337,20 +280,14 @@
     </div>
 
 
-
-    <!-- Second coordinate -->
-
     <div class="input-group">
 
       <label
         id="label-y"
         for="input-y"
       >
-
         Longitude (e.g., 151.2093)
-
       </label>
-
 
       <input
         type="text"
@@ -361,29 +298,20 @@
     </div>
 
 
-
-    <!-- Locate button -->
-
     <button id="locate-btn">
-
       Locate Subdivision Spot
-
     </button>
 
 
-
-    <!-- Error messages -->
-
     <div id="error-msg"></div>
-
 
   </div>
 
 
 
-  <!-- ==========================================
+  <!-- ================================
        MAP
-       ========================================== -->
+       ================================ -->
 
   <div id="map"></div>
 
@@ -392,9 +320,9 @@
   <script>
 
 
-    /* ==========================================
-       CREATE LEAFLET MAP
-       ========================================== */
+    /* =====================================================
+       CREATE MAP
+       ===================================================== */
 
     const map = L.map("map").setView(
       [-27.0, 133.0],
@@ -402,214 +330,418 @@
     );
 
 
-
-    /* ==========================================
-       OPENSTREETMAP BASE MAP
-       ========================================== */
+    /* =====================================================
+       OPENSTREETMAP
+       ===================================================== */
 
     const osm = L.tileLayer(
 
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 
       {
-
         maxZoom: 19,
-
-        attribution:
-          "© OpenStreetMap contributors"
-
+        attribution: "© OpenStreetMap contributors"
       }
 
-    );
-
-
-    osm.addTo(map);
+    ).addTo(map);
 
 
 
-    /* ==========================================
-       SUBDIVISION LABEL LAYER
-       ========================================== */
+    /* =====================================================
+       CREATE OUR THREE SUBDIVISION LAYERS
+       ===================================================== */
 
-    const subdivisionLabels =
-      L.layerGroup();
+    /*
+      1. subdivisionOutlines
+         Contains boundary lines with no fill.
 
+      2. subdivisionColour
+         Contains transparent coloured polygons.
 
+      3. subdivisionLabels
+         Contains subdivision names.
+    */
 
-    /* ==========================================
-       LOAD BOTANICAL SUBDIVISIONS KML
-       ========================================== */
+    const subdivisionOutlines = L.layerGroup();
 
-    const subdivisions =
-      omnivore.kml(
-        "Australian Botanical Subdivisions.kml"
-      );
+    const subdivisionColour = L.layerGroup();
 
-
-
-    /* ==========================================
-       WHEN KML HAS FINISHED LOADING
-       ========================================== */
-
-    subdivisions.on(
-
-      "ready",
-
-      function () {
+    const subdivisionLabels = L.layerGroup();
 
 
-        /* --------------------------------------
-           Zoom to the subdivision layer
-           -------------------------------------- */
 
-        const subdivisionBounds =
-          subdivisions.getBounds();
+    /* =====================================================
+       LOAD AND PARSE KML DIRECTLY
+       ===================================================== */
+
+    const kmlFile =
+      "Australian Botanical Subdivisions.kml";
 
 
-        if (subdivisionBounds.isValid()) {
+    fetch(kmlFile)
 
-          map.fitBounds(
-            subdivisionBounds
+      .then(function(response) {
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Could not load " + kmlFile
           );
 
         }
 
+        return response.text();
+
+      })
+
+      .then(function(kmlText) {
 
 
-        /* --------------------------------------
-           Read every KML feature
-           -------------------------------------- */
+        /*
+          Convert the raw KML text into an XML document.
 
-        subdivisions.eachLayer(
+          This lets us read the REAL <Placemark><name>
+          directly instead of depending on inconsistent
+          ExtendedData attribute fields.
+        */
 
-          function (layer) {
-
-
-            let subdivisionName = null;
-
-
-
-            /* ----------------------------------
-               Read embedded KML name
-               ---------------------------------- */
-
-            if (
-
-              layer.feature &&
-
-              layer.feature.properties
-
-            ) {
+        const parser =
+          new DOMParser();
 
 
-              subdivisionName =
-
-                layer.feature.properties.name ||
-
-                layer.feature.properties.Name ||
-
-                layer.feature.properties.NAME;
+        const kmlDocument =
+          parser.parseFromString(
+            kmlText,
+            "text/xml"
+          );
 
 
-            }
+        /*
+          Find every Placemark in the KML.
+        */
+
+        const placemarks =
+          Array.from(
+            kmlDocument.getElementsByTagNameNS(
+              "*",
+              "Placemark"
+            )
+          );
+
+
+        /*
+          Bounds covering all subdivisions.
+        */
+
+        const allBounds =
+          L.latLngBounds([]);
 
 
 
-            /* ----------------------------------
-               Add clickable name popup
-               ---------------------------------- */
+        /* =================================================
+           PROCESS EACH PLACEMARK
+           ================================================= */
 
-            if (
+        placemarks.forEach(
 
-              subdivisionName &&
-
-              layer.bindPopup
-
-            ) {
+          function(placemark) {
 
 
-              layer.bindPopup(
+            /* ---------------------------------------------
+               READ REAL KML PLACEMARK NAME
+               --------------------------------------------- */
 
-                "<strong>" +
+            let subdivisionName =
+              "Unnamed subdivision";
 
-                subdivisionName +
 
-                "</strong>"
-
+            const nameElements =
+              placemark.getElementsByTagNameNS(
+                "*",
+                "name"
               );
 
 
+            if (nameElements.length > 0) {
+
+              const nameText =
+                nameElements[0]
+                  .textContent
+                  .trim();
+
+
+              if (nameText) {
+
+                subdivisionName =
+                  nameText;
+
+              }
+
             }
 
 
 
-            /* ----------------------------------
-               Create permanent map label
-               ---------------------------------- */
+            /* ---------------------------------------------
+               CREATE A MINI KML DOCUMENT FOR THIS PLACEMARK
+               --------------------------------------------- */
 
-            if (
-
-              subdivisionName &&
-
-              layer.getBounds
-
-            ) {
-
-
-              const bounds =
-                layer.getBounds();
+            const miniKml =
+              document.implementation
+                .createDocument(
+                  "http://www.opengis.net/kml/2.2",
+                  "kml",
+                  null
+                );
 
 
-
-              if (bounds.isValid()) {
-
-
-                const centre =
-                  bounds.getCenter();
-
+            const miniDocument =
+              miniKml.createElementNS(
+                "http://www.opengis.net/kml/2.2",
+                "Document"
+              );
 
 
-                const labelMarker =
-                  L.marker(
-
-                    centre,
-
-                    {
-
-                      interactive: false,
+            miniKml.documentElement
+              .appendChild(
+                miniDocument
+              );
 
 
-                      icon: L.divIcon(
+            miniDocument.appendChild(
 
-                        {
+              miniKml.importNode(
+                placemark,
+                true
+              )
 
-                          className:
-                            "subdivision-label",
-
-
-                          html:
-                            subdivisionName,
+            );
 
 
-                          iconSize:
-                            null
+            const serializer =
+              new XMLSerializer();
+
+
+            const miniKmlText =
+              serializer.serializeToString(
+                miniKml
+              );
+
+
+
+            /* ---------------------------------------------
+               PARSE GEOMETRY USING OMNIVORE
+               --------------------------------------------- */
+
+            const tempLayer =
+              omnivore.kml.parse(
+                miniKmlText
+              );
+
+
+
+            /* ---------------------------------------------
+               PROCESS EACH GEOMETRY
+               --------------------------------------------- */
+
+            tempLayer.eachLayer(
+
+              function(layer) {
+
+
+                if (!layer.getBounds) {
+
+                  return;
+
+                }
+
+
+                const bounds =
+                  layer.getBounds();
+
+
+                if (!bounds.isValid()) {
+
+                  return;
+
+                }
+
+
+                allBounds.extend(
+                  bounds
+                );
+
+
+
+                /* =========================================
+                   OUTLINE LAYER
+                   ========================================= */
+
+                if (layer.toGeoJSON) {
+
+
+                  const geojson =
+                    layer.toGeoJSON();
+
+
+                  const outlineLayer =
+                    L.geoJSON(
+
+                      geojson,
+
+                      {
+
+                        style: {
+
+                          color: "#c0392b",
+
+                          weight: 1.5,
+
+                          opacity: 0.9,
+
+                          fill: false,
+
+                          fillOpacity: 0
 
                         }
 
-                      )
+                      }
+
+                    );
+
+
+                  outlineLayer.bindPopup(
+
+                    "<strong>" +
+                    escapeHtml(
+                      subdivisionName
+                    ) +
+                    "</strong>"
+
+                  );
+
+
+                  subdivisionOutlines.addLayer(
+                    outlineLayer
+                  );
+
+
+
+                  /* =======================================
+                     COLOUR / HIGHLIGHT LAYER
+                     ======================================= */
+
+                  const colourLayer =
+                    L.geoJSON(
+
+                      geojson,
+
+                      {
+
+                        style: {
+
+                          color: "transparent",
+
+                          weight: 0,
+
+                          fillColor: "#d95f4f",
+
+                          fill: true,
+
+                          fillOpacity: 0.20
+
+                        }
+
+                      }
+
+                    );
+
+
+                  /*
+                    Do not let the colour layer block
+                    clicks on the outline underneath.
+                  */
+
+                  colourLayer.eachLayer(
+
+                    function(colourPart) {
+
+                      if (
+                        colourPart.options
+                      ) {
+
+                        colourPart.options
+                          .interactive = false;
+
+                      }
 
                     }
 
                   );
 
 
+                  subdivisionColour.addLayer(
+                    colourLayer
+                  );
 
-                subdivisionLabels.addLayer(
-                  labelMarker
+                }
+
+              }
+
+            );
+
+
+
+            /* ---------------------------------------------
+               ONE LABEL PER NAMED SUBDIVISION
+               --------------------------------------------- */
+
+            if (
+              tempLayer.getBounds &&
+              tempLayer.getBounds().isValid()
+            ) {
+
+
+              const centre =
+                tempLayer
+                  .getBounds()
+                  .getCenter();
+
+
+              const labelMarker =
+                L.marker(
+
+                  centre,
+
+                  {
+
+                    interactive: false,
+
+                    icon: L.divIcon(
+
+                      {
+
+                        className:
+                          "subdivision-label",
+
+                        html:
+                          escapeHtml(
+                            subdivisionName
+                          ),
+
+                        iconSize: null
+
+                      }
+
+                    )
+
+                  }
+
                 );
 
 
-              }
+              subdivisionLabels.addLayer(
+                labelMarker
+              );
 
             }
 
@@ -620,30 +752,55 @@
 
 
 
-        /* --------------------------------------
-           Show labels when page first opens
-           -------------------------------------- */
+        /* =================================================
+           ADD DEFAULT LAYERS
+           ================================================= */
+
+        subdivisionOutlines.addTo(map);
+
+        subdivisionColour.addTo(map);
 
         subdivisionLabels.addTo(map);
 
 
-      }
 
-    );
+        /* =================================================
+           ZOOM TO ALL SUBDIVISIONS
+           ================================================= */
+
+        if (allBounds.isValid()) {
+
+          map.fitBounds(
+            allBounds
+          );
+
+        }
+
+
+      })
+
+
+      .catch(function(error) {
+
+
+        console.error(
+          "KML loading error:",
+          error
+        );
+
+
+        showError(
+          "The Australian Botanical Subdivisions KML could not be loaded."
+        );
+
+
+      });
 
 
 
-    /* ==========================================
-       SHOW SUBDIVISION POLYGONS
-       ========================================== */
-
-    subdivisions.addTo(map);
-
-
-
-    /* ==========================================
-       MAP LAYER SWITCHER
-       ========================================== */
+    /* =====================================================
+       LAYER CONTROL
+       ===================================================== */
 
     const baseMaps = {
 
@@ -653,18 +810,18 @@
     };
 
 
-
     const overlayMaps = {
 
       "Botanical Subdivisions":
-        subdivisions,
+        subdivisionOutlines,
 
+      "Subdivision Colour":
+        subdivisionColour,
 
       "Subdivision Labels":
         subdivisionLabels
 
     };
-
 
 
     L.control.layers(
@@ -674,80 +831,66 @@
       overlayMaps,
 
       {
-
         collapsed: false
-
       }
 
     ).addTo(map);
 
 
 
-    /* ==========================================
-       COORDINATE SEARCH VARIABLES
-       ========================================== */
+    /* =====================================================
+       COORDINATE SEARCH
+       ===================================================== */
 
     let currentMarker = null;
 
 
-
     const coordTypeSelect =
-
       document.getElementById(
         "coord-type"
       );
 
 
-
     const utmFields =
-
       document.getElementById(
         "utm-fields"
       );
 
 
-
     const labelX =
-
       document.getElementById(
         "label-x"
       );
 
 
-
     const labelY =
-
       document.getElementById(
         "label-y"
       );
 
 
-
     const inputX =
-
       document.getElementById(
         "input-x"
       );
 
 
-
     const inputY =
-
       document.getElementById(
         "input-y"
       );
 
 
 
-    /* ==========================================
-       CHANGE COORDINATE INPUT TYPE
-       ========================================== */
+    /* =====================================================
+       SWITCH COORDINATE TYPE
+       ===================================================== */
 
     coordTypeSelect.addEventListener(
 
       "change",
 
-      function () {
+      function() {
 
 
         if (
@@ -759,20 +902,16 @@
             "block";
 
 
-
           labelX.innerText =
             "Easting (6 digits, e.g., 334000)";
-
 
 
           labelY.innerText =
             "Northing (7 digits, e.g., 6251000)";
 
 
-
           inputX.placeholder =
             "334000";
-
 
 
           inputY.placeholder =
@@ -789,20 +928,16 @@
             "none";
 
 
-
           labelX.innerText =
             "Latitude (e.g., -33.8688)";
-
 
 
           labelY.innerText =
             "Longitude (e.g., 151.2093)";
 
 
-
           inputX.placeholder =
             "-33.8688";
-
 
 
           inputY.placeholder =
@@ -818,9 +953,9 @@
 
 
 
-    /* ==========================================
-       LOCATE COORDINATES
-       ========================================== */
+    /* =====================================================
+       LOCATE BUTTON
+       ===================================================== */
 
     document
       .getElementById(
@@ -830,16 +965,13 @@
 
         "click",
 
-        function () {
-
+        function() {
 
 
           const errorDiv =
-
             document.getElementById(
               "error-msg"
             );
-
 
 
           errorDiv.style.display =
@@ -848,38 +980,26 @@
 
 
           const val1 =
-
             parseFloat(
               inputX.value.trim()
             );
 
 
-
           const val2 =
-
             parseFloat(
               inputY.value.trim()
             );
 
 
 
-          /* ------------------------------------
-             Validate input
-             ------------------------------------ */
-
           if (
-
             isNaN(val1) ||
-
             isNaN(val2)
-
           ) {
 
 
             showError(
-
               "Please enter valid numerical coordinate values."
-
             );
 
 
@@ -895,21 +1015,17 @@
 
 
 
-          /* ====================================
-             UTM COORDINATES
-             ==================================== */
+          /* ===============================================
+             UTM
+             =============================================== */
 
           if (
-
             coordTypeSelect.value ===
             "utm"
-
           ) {
 
 
-
             const zone =
-
               document
                 .getElementById(
                   "utm-zone"
@@ -917,11 +1033,9 @@
                 .value;
 
 
-
             const utmProj =
 
               `+proj=utm +zone=${zone} +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
-
 
 
             const wgs84Proj =
@@ -929,13 +1043,10 @@
               "+proj=longlat +datum=WGS84 +no_defs";
 
 
-
             try {
 
 
-
               const converted =
-
                 proj4(
 
                   utmProj,
@@ -950,20 +1061,14 @@
                 );
 
 
-
               targetLng =
                 converted[0];
-
 
 
               targetLat =
                 converted[1];
 
 
-
-              /* --------------------------------
-                 Check Australia bounds
-                 -------------------------------- */
 
               if (
 
@@ -978,27 +1083,22 @@
               ) {
 
 
-
                 showError(
 
-                  "The converted UTM components fall outside the bounds of Australia."
+                  "The converted UTM coordinates fall outside the bounds of Australia."
 
                 );
 
 
-
                 return;
 
-
               }
-
 
 
             }
 
 
             catch (err) {
-
 
 
               showError(
@@ -1008,9 +1108,7 @@
               );
 
 
-
               return;
-
 
             }
 
@@ -1019,9 +1117,9 @@
 
 
 
-          /* ====================================
+          /* ===============================================
              LATITUDE / LONGITUDE
-             ==================================== */
+             =============================================== */
 
           else {
 
@@ -1030,18 +1128,44 @@
               val1;
 
 
-
             targetLng =
               val2;
+
+
+            /*
+              Basic validation for decimal coordinates.
+            */
+
+            if (
+
+              targetLat < -90 ||
+
+              targetLat > 90 ||
+
+              targetLng < -180 ||
+
+              targetLng > 180
+
+            ) {
+
+
+              showError(
+                "Please enter valid latitude and longitude values."
+              );
+
+
+              return;
+
+            }
 
 
           }
 
 
 
-          /* ====================================
-             REMOVE EXISTING MARKER
-             ==================================== */
+          /* ===============================================
+             REMOVE PREVIOUS MARKER
+             =============================================== */
 
           if (currentMarker) {
 
@@ -1055,9 +1179,9 @@
 
 
 
-          /* ====================================
-             ADD LOCATION MARKER
-             ==================================== */
+          /* ===============================================
+             ADD NEW MARKER
+             =============================================== */
 
           currentMarker =
 
@@ -1084,10 +1208,6 @@
 
 
 
-          /* ====================================
-             ZOOM TO LOCATION
-             ==================================== */
-
           map.setView(
 
             [
@@ -1106,24 +1226,45 @@
 
 
 
-    /* ==========================================
-       DISPLAY ERROR
-       ========================================== */
+    /* =====================================================
+       ESCAPE KML TEXT FOR SAFE HTML DISPLAY
+       ===================================================== */
+
+    function escapeHtml(text) {
+
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.textContent =
+        text;
+
+
+      return div.innerHTML;
+
+
+    }
+
+
+
+    /* =====================================================
+       ERROR MESSAGE
+       ===================================================== */
 
     function showError(text) {
 
 
       const errorDiv =
-
         document.getElementById(
           "error-msg"
         );
 
 
-
       errorDiv.innerText =
         text;
-
 
 
       errorDiv.style.display =
