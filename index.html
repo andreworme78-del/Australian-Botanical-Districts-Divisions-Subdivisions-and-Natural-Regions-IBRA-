@@ -18,7 +18,7 @@
   <!-- Leaflet JS -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    integrity="sha256-20nQCchB9coqIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin="">
   </script>
 
@@ -51,7 +51,7 @@
        ========================================== */
 
     #sidebar {
-      width: 390px;
+      width: 410px;
       background: #ffffff;
       padding: 22px;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -80,7 +80,7 @@
 
 
     /* ==========================================
-       COORDINATE TOOL
+       COORDINATE BOXES
        ========================================== */
 
     .coord-box {
@@ -121,7 +121,7 @@
     .coord-row label {
       font-size: 0.76rem;
       font-weight: 600;
-      min-width: 48px;
+      min-width: 58px;
     }
 
     .coord-row input,
@@ -163,6 +163,90 @@
       flex: none !important;
     }
 
+
+    /* ==========================================
+       DATUM SWITCH
+       ========================================== */
+
+    .datum-area {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #dfe4e1;
+    }
+
+    .datum-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      margin-bottom: 7px;
+      color: #444;
+    }
+
+    .datum-switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .datum-switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+      flex: none;
+    }
+
+    .datum-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #55735f;
+      transition: 0.2s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.2s;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+    }
+
+    .datum-switch input:checked + .slider {
+      background-color: #8a6544;
+    }
+
+    .datum-switch input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .datum-selected {
+      font-weight: 700;
+      color: #2c4c38;
+    }
+
+
+    /* ==========================================
+       BUTTONS
+       ========================================== */
+
     button {
       width: 100%;
       padding: 10px;
@@ -180,7 +264,7 @@
     }
 
     #convert-btn {
-      margin-top: 5px;
+      margin-top: 10px;
     }
 
     #plot-btn {
@@ -210,15 +294,25 @@
       display: none;
     }
 
-    .result-row {
-      padding: 7px 0;
-      border-bottom: 1px solid #e3e7e4;
-      font-size: 0.78rem;
-      line-height: 1.4;
+    .result-datum-heading {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #2c4c38;
+      margin-top: 4px;
+      margin-bottom: 3px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #dce7df;
     }
 
-    .result-row:last-child {
-      border-bottom: none;
+    .result-datum-heading.agd {
+      margin-top: 14px;
+    }
+
+    .result-row {
+      padding: 6px 0;
+      border-bottom: 1px solid #e3e7e4;
+      font-size: 0.76rem;
+      line-height: 1.4;
     }
 
     .result-label {
@@ -234,11 +328,20 @@
       word-break: break-word;
     }
 
+    .shift-box {
+      margin-top: 12px;
+      padding: 8px;
+      background: #eef3ef;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+
     .datum-note {
-      font-size: 0.72rem;
+      font-size: 0.69rem;
       color: #666;
       line-height: 1.35;
-      margin-top: 8px;
+      margin-top: 9px;
     }
 
 
@@ -293,11 +396,11 @@
 
       #sidebar {
         width: 100%;
-        max-height: 55vh;
+        max-height: 58vh;
       }
 
       #map {
-        height: 45vh;
+        height: 42vh;
       }
 
     }
@@ -310,23 +413,18 @@
 <body>
 
 
-  <!-- ==========================================
-       SIDEBAR
-       ========================================== -->
-
   <div id="sidebar">
 
     <h2>Botanical Subdivisions Lookup</h2>
 
     <div class="description">
-      Enter coordinates in any supported format, convert them to the other
-      coordinate formats, then plot the location on the botanical subdivisions map.
+      Enter coordinates in DD, DMM, DMS or Australian grid coordinates.
+      Coordinates can be entered as either GDA94 / MGA94 or historical
+      AGD66 / AMG66.
     </div>
 
 
-    <!-- ==========================================
-         INPUT COORDINATES
-         ========================================== -->
+    <!-- INPUT -->
 
     <div class="coord-box">
 
@@ -352,16 +450,14 @@
 
       <label class="format-choice">
         <input type="radio" name="coord-format" value="utm">
-        Grid Reference – MGA94 / UTM
+        Grid Reference – MGA94 / AMG66
       </label>
 
 
       <div class="coordinate-fields">
 
 
-        <!-- ======================================
-             DECIMAL DEGREES
-             ====================================== -->
+        <!-- DD -->
 
         <div id="fields-dd" class="field-section active">
 
@@ -386,9 +482,7 @@
         </div>
 
 
-        <!-- ======================================
-             DMM
-             ====================================== -->
+        <!-- DMM -->
 
         <div id="fields-dmm" class="field-section">
 
@@ -413,10 +507,7 @@
 
             <span>′</span>
 
-            <select
-              id="dmm-lat-dir"
-              class="direction-field"
-            >
+            <select id="dmm-lat-dir" class="direction-field">
               <option value="S">S</option>
               <option value="N">N</option>
             </select>
@@ -445,10 +536,7 @@
 
             <span>′</span>
 
-            <select
-              id="dmm-lon-dir"
-              class="direction-field"
-            >
+            <select id="dmm-lon-dir" class="direction-field">
               <option value="E">E</option>
               <option value="W">W</option>
             </select>
@@ -458,9 +546,7 @@
         </div>
 
 
-        <!-- ======================================
-             DMS
-             ====================================== -->
+        <!-- DMS -->
 
         <div id="fields-dms" class="field-section">
 
@@ -494,10 +580,7 @@
 
             <span>″</span>
 
-            <select
-              id="dms-lat-dir"
-              class="direction-field"
-            >
+            <select id="dms-lat-dir" class="direction-field">
               <option value="S">S</option>
               <option value="N">N</option>
             </select>
@@ -535,10 +618,7 @@
 
             <span>″</span>
 
-            <select
-              id="dms-lon-dir"
-              class="direction-field"
-            >
+            <select id="dms-lon-dir" class="direction-field">
               <option value="E">E</option>
               <option value="W">W</option>
             </select>
@@ -548,9 +628,7 @@
         </div>
 
 
-        <!-- ======================================
-             MGA94 / UTM
-             ====================================== -->
+        <!-- GRID -->
 
         <div id="fields-utm" class="field-section">
 
@@ -577,7 +655,6 @@
             <label>Zone</label>
 
             <select id="utm-zone">
-
               <option value="49">49</option>
               <option value="50">50</option>
               <option value="51">51</option>
@@ -586,7 +663,6 @@
               <option value="54">54</option>
               <option value="55" selected>55</option>
               <option value="56">56</option>
-
             </select>
 
           </div>
@@ -597,10 +673,37 @@
       </div>
 
 
+      <!-- DATUM SWITCH -->
+
+      <div class="datum-area">
+
+        <div class="datum-title">
+          Input Datum / Projection
+        </div>
+
+        <div class="datum-switch-row">
+
+          <span id="gda-switch-label" class="datum-selected">
+            GDA94 / MGA94
+          </span>
+
+          <label class="datum-switch">
+            <input type="checkbox" id="datum-toggle">
+            <span class="slider"></span>
+          </label>
+
+          <span id="agd-switch-label">
+            AGD66 / AMG66
+          </span>
+
+        </div>
+
+      </div>
+
+
       <button id="convert-btn">
         Convert Input Coordinates
       </button>
-
 
       <div id="error-msg"></div>
 
@@ -608,87 +711,80 @@
 
 
 
-    <!-- ==========================================
-         OUTPUT COORDINATES
-         ========================================== -->
+    <!-- OUTPUT -->
 
-    <div
-      class="coord-box"
-      id="output-box"
-    >
+    <div class="coord-box" id="output-box">
 
       <div class="coord-box-title">
         Output Coordinates
       </div>
 
 
-      <div class="result-row">
-
-        <span class="result-label">
-          Lat/Long (GDA94) – DD
-        </span>
-
-        <span
-          class="result-value"
-          id="result-dd"
-        ></span>
-
+      <div class="result-datum-heading">
+        GDA94 / MGA94
       </div>
 
 
       <div class="result-row">
+        <span class="result-label">Lat/Long – DD</span>
+        <span class="result-value" id="gda-dd"></span>
+      </div>
 
-        <span class="result-label">
-          Lat/Long (GDA94) – DMM
-        </span>
+      <div class="result-row">
+        <span class="result-label">Lat/Long – DMM</span>
+        <span class="result-value" id="gda-dmm"></span>
+      </div>
 
-        <span
-          class="result-value"
-          id="result-dmm"
-        ></span>
+      <div class="result-row">
+        <span class="result-label">Lat/Long – DMS</span>
+        <span class="result-value" id="gda-dms"></span>
+      </div>
 
+      <div class="result-row">
+        <span class="result-label">Grid Reference – MGA94</span>
+        <span class="result-value" id="gda-grid"></span>
+      </div>
+
+
+
+      <div class="result-datum-heading agd">
+        AGD66 / AMG66
       </div>
 
 
       <div class="result-row">
-
-        <span class="result-label">
-          Lat/Long (GDA94) – DMS
-        </span>
-
-        <span
-          class="result-value"
-          id="result-dms"
-        ></span>
-
+        <span class="result-label">Lat/Long – DD</span>
+        <span class="result-value" id="agd-dd"></span>
       </div>
-
 
       <div class="result-row">
+        <span class="result-label">Lat/Long – DMM</span>
+        <span class="result-value" id="agd-dmm"></span>
+      </div>
 
-        <span class="result-label">
-          Grid Reference (MGA94)
-        </span>
+      <div class="result-row">
+        <span class="result-label">Lat/Long – DMS</span>
+        <span class="result-value" id="agd-dms"></span>
+      </div>
 
-        <span
-          class="result-value"
-          id="result-utm"
-        ></span>
-
+      <div class="result-row">
+        <span class="result-label">Grid Reference – AMG66</span>
+        <span class="result-value" id="agd-grid"></span>
       </div>
 
 
-      <button
-        id="plot-btn"
-        disabled
-      >
+      <div class="shift-box" id="datum-shift"></div>
+
+
+      <button id="plot-btn" disabled>
         Plot and Zoom
       </button>
 
 
       <div class="datum-note">
-        Geographic coordinates are treated as GDA94 for this tool.
-        MGA94 grid coordinates use Australian UTM zones 49–56.
+        AGD66 conversion uses a standard national datum transformation.
+        Historical survey software may give slightly different results depending
+        on the transformation parameters or regional grid used.
       </div>
 
     </div>
@@ -697,9 +793,7 @@
 
 
 
-  <!-- ==========================================
-       MAP
-       ========================================== -->
+  <!-- MAP -->
 
   <div id="map"></div>
 
@@ -708,9 +802,9 @@
   <script>
 
 
-    /* ==========================================
-       CREATE LEAFLET MAP
-       ========================================== */
+    /* =====================================================
+       MAP
+       ===================================================== */
 
     const map = L.map("map").setView(
       [-27.0, 133.0],
@@ -718,206 +812,315 @@
     );
 
 
-
-    /* ==========================================
-       OPENSTREETMAP BASE MAP
-       ========================================== */
-
     const osm = L.tileLayer(
 
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 
       {
-
         maxZoom: 19,
-
-        attribution:
-          "© OpenStreetMap contributors"
-
+        attribution: "© OpenStreetMap contributors"
       }
 
-    );
-
-
-    osm.addTo(map);
+    ).addTo(map);
 
 
 
-    /* ==========================================
-       SUBDIVISION LABEL LAYER
-       ========================================== */
+    /* =====================================================
+       SUBDIVISION LAYERS
+       ===================================================== */
+
+    const subdivisionOutlines =
+      L.layerGroup();
+
+    const subdivisionColour =
+      L.layerGroup();
 
     const subdivisionLabels =
       L.layerGroup();
 
 
 
-    /* ==========================================
-       LOAD BOTANICAL SUBDIVISIONS KML
-       ========================================== */
+    /* =====================================================
+       LOAD KML
+       ===================================================== */
 
-    const subdivisions =
-      omnivore.kml(
-        "Australian Botanical Subdivisions.kml"
-      );
+    const kmlFile =
+      "Australian Botanical Subdivisions.kml";
 
 
+    fetch(kmlFile)
 
-    /* ==========================================
-       WHEN KML HAS FINISHED LOADING
-       ========================================== */
+      .then(function(response) {
 
-    subdivisions.on(
-
-      "ready",
-
-      function () {
-
-
-        const subdivisionBounds =
-          subdivisions.getBounds();
-
-
-        if (subdivisionBounds.isValid()) {
-
-          map.fitBounds(
-            subdivisionBounds
+        if (!response.ok) {
+          throw new Error(
+            "Could not load " + kmlFile
           );
-
         }
 
+        return response.text();
+
+      })
+
+      .then(function(kmlText) {
 
 
-        /* --------------------------------------
-           Read every KML feature
-           -------------------------------------- */
-
-        subdivisions.eachLayer(
-
-          function (layer) {
+        const parser =
+          new DOMParser();
 
 
-            let subdivisionName = null;
+        const kmlDocument =
+          parser.parseFromString(
+            kmlText,
+            "text/xml"
+          );
 
 
-
-            if (
-
-              layer.feature &&
-
-              layer.feature.properties
-
-            ) {
-
-
-              subdivisionName =
-
-                layer.feature.properties.name ||
-
-                layer.feature.properties.Name ||
-
-                layer.feature.properties.NAME;
+        const placemarks =
+          Array.from(
+            kmlDocument.getElementsByTagNameNS(
+              "*",
+              "Placemark"
+            )
+          );
 
 
-            }
+        const allBounds =
+          L.latLngBounds([]);
 
 
 
-            /* ----------------------------------
-               Add clickable name popup
-               ---------------------------------- */
+        placemarks.forEach(
 
-            if (
-
-              subdivisionName &&
-
-              layer.bindPopup
-
-            ) {
+          function(placemark) {
 
 
-              layer.bindPopup(
+            let subdivisionName =
+              "Unnamed subdivision";
 
-                "<strong>" +
 
-                subdivisionName +
-
-                "</strong>"
-
+            const nameElements =
+              placemark.getElementsByTagNameNS(
+                "*",
+                "name"
               );
 
 
+            if (nameElements.length > 0) {
+
+              const nameText =
+                nameElements[0]
+                  .textContent
+                  .trim();
+
+
+              if (nameText) {
+                subdivisionName =
+                  nameText;
+              }
+
             }
 
 
 
-            /* ----------------------------------
-               Create permanent map label
-               ---------------------------------- */
+            /* Create mini KML for this Placemark */
 
-            if (
-
-              subdivisionName &&
-
-              layer.getBounds
-
-            ) {
+            const miniKml =
+              document.implementation
+                .createDocument(
+                  "http://www.opengis.net/kml/2.2",
+                  "kml",
+                  null
+                );
 
 
-              const bounds =
-                layer.getBounds();
+            const miniDocument =
+              miniKml.createElementNS(
+                "http://www.opengis.net/kml/2.2",
+                "Document"
+              );
+
+
+            miniKml.documentElement
+              .appendChild(
+                miniDocument
+              );
+
+
+            miniDocument.appendChild(
+
+              miniKml.importNode(
+                placemark,
+                true
+              )
+
+            );
+
+
+            const serializer =
+              new XMLSerializer();
+
+
+            const miniKmlText =
+              serializer.serializeToString(
+                miniKml
+              );
+
+
+            const tempLayer =
+              omnivore.kml.parse(
+                miniKmlText
+              );
 
 
 
-              if (bounds.isValid()) {
+            tempLayer.eachLayer(
+
+              function(layer) {
 
 
-                const centre =
-                  bounds.getCenter();
+                if (!layer.getBounds) {
+                  return;
+                }
+
+
+                const bounds =
+                  layer.getBounds();
+
+
+                if (!bounds.isValid()) {
+                  return;
+                }
+
+
+                allBounds.extend(
+                  bounds
+                );
 
 
 
-                const labelMarker =
-                  L.marker(
-
-                    centre,
-
-                    {
-
-                      interactive: false,
+                if (layer.toGeoJSON) {
 
 
-                      icon: L.divIcon(
-
-                        {
-
-                          className:
-                            "subdivision-label",
+                  const geojson =
+                    layer.toGeoJSON();
 
 
-                          html:
-                            subdivisionName,
 
+                  /* OUTLINE */
 
-                          iconSize:
-                            null
+                  const outlineLayer =
+                    L.geoJSON(
 
+                      geojson,
+
+                      {
+                        style: {
+                          color: "#c0392b",
+                          weight: 1.5,
+                          opacity: 0.9,
+                          fill: false,
+                          fillOpacity: 0
                         }
+                      }
 
-                      )
+                    );
 
-                    }
+
+                  outlineLayer.bindPopup(
+
+                    "<strong>" +
+                    escapeHtml(
+                      subdivisionName
+                    ) +
+                    "</strong>"
 
                   );
 
 
+                  subdivisionOutlines.addLayer(
+                    outlineLayer
+                  );
 
-                subdivisionLabels.addLayer(
-                  labelMarker
+
+
+                  /* COLOUR */
+
+                  const colourLayer =
+                    L.geoJSON(
+
+                      geojson,
+
+                      {
+                        style: {
+                          color: "transparent",
+                          weight: 0,
+                          fillColor: "#d95f4f",
+                          fill: true,
+                          fillOpacity: 0.20
+                        },
+                        interactive: false
+                      }
+
+                    );
+
+
+                  subdivisionColour.addLayer(
+                    colourLayer
+                  );
+
+
+                }
+
+              }
+
+            );
+
+
+
+            /* LABEL */
+
+            if (
+              tempLayer.getBounds &&
+              tempLayer.getBounds().isValid()
+            ) {
+
+
+              const centre =
+                tempLayer
+                  .getBounds()
+                  .getCenter();
+
+
+              const labelMarker =
+                L.marker(
+
+                  centre,
+
+                  {
+                    interactive: false,
+
+                    icon: L.divIcon(
+                      {
+                        className:
+                          "subdivision-label",
+
+                        html:
+                          escapeHtml(
+                            subdivisionName
+                          ),
+
+                        iconSize: null
+                      }
+                    )
+                  }
+
                 );
 
 
-              }
+              subdivisionLabels.addLayer(
+                labelMarker
+              );
 
             }
 
@@ -928,26 +1131,41 @@
 
 
 
+        subdivisionOutlines.addTo(map);
+        subdivisionColour.addTo(map);
         subdivisionLabels.addTo(map);
 
 
-      }
+        if (allBounds.isValid()) {
 
-    );
+          map.fitBounds(
+            allBounds
+          );
 
-
-
-    /* ==========================================
-       SHOW SUBDIVISION POLYGONS
-       ========================================== */
-
-    subdivisions.addTo(map);
+        }
 
 
+      })
 
-    /* ==========================================
-       MAP LAYER SWITCHER
-       ========================================== */
+
+      .catch(function(error) {
+
+        console.error(
+          "KML loading error:",
+          error
+        );
+
+        showError(
+          "The Australian Botanical Subdivisions KML could not be loaded."
+        );
+
+      });
+
+
+
+    /* =====================================================
+       MAP LAYER CONTROL
+       ===================================================== */
 
     const baseMaps = {
 
@@ -960,7 +1178,10 @@
     const overlayMaps = {
 
       "Botanical Subdivisions":
-        subdivisions,
+        subdivisionOutlines,
+
+      "Subdivision Colour":
+        subdivisionColour,
 
       "Subdivision Labels":
         subdivisionLabels
@@ -975,9 +1196,7 @@
       overlayMaps,
 
       {
-
         collapsed: false
-
       }
 
     ).addTo(map);
@@ -985,19 +1204,86 @@
 
 
     /* =====================================================
-       NEW COORDINATE CONVERTER
+       DATUM DEFINITIONS
+       ===================================================== */
+
+    /*
+      GDA94:
+      GRS80 ellipsoid.
+
+      AGD66:
+      Australian National Spheroid with a commonly used
+      national 7-parameter transformation to modern
+      geocentric coordinates.
+    */
+
+    const GDA94_GEOG =
+      "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs";
+
+
+    const AGD66_GEOG =
+      "+proj=longlat " +
+      "+a=6378160 " +
+      "+rf=298.25 " +
+      "+towgs84=-117.808,-51.536,137.784,-0.303,-0.446,-0.234,-0.29 " +
+      "+no_defs";
+
+
+
+    function gdaGridProjection(zone) {
+
+      return (
+        "+proj=utm " +
+        "+zone=" + zone + " " +
+        "+south " +
+        "+ellps=GRS80 " +
+        "+towgs84=0,0,0,0,0,0,0 " +
+        "+units=m " +
+        "+no_defs"
+      );
+
+    }
+
+
+
+    function agdGridProjection(zone) {
+
+      return (
+        "+proj=utm " +
+        "+zone=" + zone + " " +
+        "+south " +
+        "+a=6378160 " +
+        "+rf=298.25 " +
+        "+towgs84=-117.808,-51.536,137.784,-0.303,-0.446,-0.234,-0.29 " +
+        "+units=m " +
+        "+no_defs"
+      );
+
+    }
+
+
+
+    /* =====================================================
+       COORDINATE VARIABLES
        ===================================================== */
 
     let currentMarker = null;
 
-    let convertedLat = null;
-    let convertedLon = null;
+    /*
+      Store both versions of the converted position.
+    */
+
+    let currentGDA = null;
+    let currentAGD = null;
+
+    let inputDatum =
+      "GDA94";
 
 
 
-    /* ==========================================
-       SWITCH INPUT FORMAT
-       ========================================== */
+    /* =====================================================
+       FORMAT SELECTION
+       ===================================================== */
 
     const formatRadios =
       document.querySelectorAll(
@@ -1007,14 +1293,14 @@
 
     formatRadios.forEach(
 
-      function (radio) {
+      function(radio) {
 
 
         radio.addEventListener(
 
           "change",
 
-          function () {
+          function() {
 
 
             document
@@ -1023,7 +1309,7 @@
               )
               .forEach(
 
-                function (section) {
+                function(section) {
 
                   section.classList.remove(
                     "active"
@@ -1056,662 +1342,750 @@
 
 
 
-    /* ==========================================
+    /* =====================================================
+       DATUM TOGGLE
+       ===================================================== */
+
+    const datumToggle =
+      document.getElementById(
+        "datum-toggle"
+      );
+
+
+    datumToggle.addEventListener(
+
+      "change",
+
+      function() {
+
+
+        inputDatum =
+          this.checked
+            ? "AGD66"
+            : "GDA94";
+
+
+        document
+          .getElementById(
+            "gda-switch-label"
+          )
+          .classList.toggle(
+            "datum-selected",
+            !this.checked
+          );
+
+
+        document
+          .getElementById(
+            "agd-switch-label"
+          )
+          .classList.toggle(
+            "datum-selected",
+            this.checked
+          );
+
+
+        /*
+          If coordinates have already been converted,
+          re-read the input using the newly selected datum.
+
+          This is what allows the user to flip the switch
+          and see how the interpretation changes.
+        */
+
+        if (
+          document
+            .getElementById(
+              "output-box"
+            )
+            .style.display === "block"
+        ) {
+
+          convertCoordinates();
+
+        }
+
+      }
+
+    );
+
+
+
+    /* =====================================================
        CONVERT BUTTON
-       ========================================== */
+       ===================================================== */
 
     document
       .getElementById(
         "convert-btn"
       )
       .addEventListener(
-
         "click",
+        convertCoordinates
+      );
 
-        function () {
 
 
-          hideError();
+    /* =====================================================
+       MAIN CONVERSION
+       ===================================================== */
 
+    function convertCoordinates() {
 
-          const selected =
-            document.querySelector(
-              'input[name="coord-format"]:checked'
-            ).value;
 
+      hideError();
 
-          let lat;
-          let lon;
 
+      try {
 
 
-          try {
+        const selected =
+          document.querySelector(
+            'input[name="coord-format"]:checked'
+          ).value;
 
 
-            /* ====================================
-               DECIMAL DEGREES INPUT
-               ==================================== */
+        let inputLon;
+        let inputLat;
 
-            if (selected === "dd") {
 
 
-              lat =
-                parseFloat(
-                  document
-                    .getElementById(
-                      "dd-lat"
-                    )
-                    .value
-                );
+        /* ================================================
+           DECIMAL DEGREES
+           ================================================ */
 
+        if (selected === "dd") {
 
-              lon =
-                parseFloat(
-                  document
-                    .getElementById(
-                      "dd-lon"
-                    )
-                    .value
-                );
 
-
-              if (
-                !Number.isFinite(lat) ||
-                !Number.isFinite(lon)
-              ) {
-
-                throw new Error(
-                  "Please enter a valid latitude and longitude."
-                );
-
-              }
-
-
-            }
-
-
-
-            /* ====================================
-               DMM INPUT
-               ==================================== */
-
-            else if (
-              selected === "dmm"
-            ) {
-
-
-              const latDeg =
-                parseFloat(
-                  document.getElementById(
-                    "dmm-lat-deg"
-                  ).value
-                );
-
-
-              const latMin =
-                parseFloat(
-                  document.getElementById(
-                    "dmm-lat-min"
-                  ).value
-                );
-
-
-              const lonDeg =
-                parseFloat(
-                  document.getElementById(
-                    "dmm-lon-deg"
-                  ).value
-                );
-
-
-              const lonMin =
-                parseFloat(
-                  document.getElementById(
-                    "dmm-lon-min"
-                  ).value
-                );
-
-
-              const latDir =
-                document.getElementById(
-                  "dmm-lat-dir"
-                ).value;
-
-
-              const lonDir =
-                document.getElementById(
-                  "dmm-lon-dir"
-                ).value;
-
-
-
-              if (
-
-                !Number.isFinite(latDeg) ||
-                !Number.isFinite(latMin) ||
-                !Number.isFinite(lonDeg) ||
-                !Number.isFinite(lonMin)
-
-              ) {
-
-                throw new Error(
-                  "Please complete all DMM coordinate fields."
-                );
-
-              }
-
-
-              if (
-                latMin < 0 ||
-                latMin >= 60 ||
-                lonMin < 0 ||
-                lonMin >= 60
-              ) {
-
-                throw new Error(
-                  "Minutes must be between 0 and less than 60."
-                );
-
-              }
-
-
-              lat =
-                Math.abs(latDeg) +
-                (latMin / 60);
-
-
-              lon =
-                Math.abs(lonDeg) +
-                (lonMin / 60);
-
-
-              if (latDir === "S") {
-                lat = -lat;
-              }
-
-
-              if (lonDir === "W") {
-                lon = -lon;
-              }
-
-
-            }
-
-
-
-            /* ====================================
-               DMS INPUT
-               ==================================== */
-
-            else if (
-              selected === "dms"
-            ) {
-
-
-              const latDeg =
-                parseFloat(
-                  document.getElementById(
-                    "dms-lat-deg"
-                  ).value
-                );
-
-
-              const latMin =
-                parseFloat(
-                  document.getElementById(
-                    "dms-lat-min"
-                  ).value
-                );
-
-
-              const latSec =
-                parseFloat(
-                  document.getElementById(
-                    "dms-lat-sec"
-                  ).value
-                );
-
-
-              const lonDeg =
-                parseFloat(
-                  document.getElementById(
-                    "dms-lon-deg"
-                  ).value
-                );
-
-
-              const lonMin =
-                parseFloat(
-                  document.getElementById(
-                    "dms-lon-min"
-                  ).value
-                );
-
-
-              const lonSec =
-                parseFloat(
-                  document.getElementById(
-                    "dms-lon-sec"
-                  ).value
-                );
-
-
-              const latDir =
-                document.getElementById(
-                  "dms-lat-dir"
-                ).value;
-
-
-              const lonDir =
-                document.getElementById(
-                  "dms-lon-dir"
-                ).value;
-
-
-
-              if (
-
-                !Number.isFinite(latDeg) ||
-                !Number.isFinite(latMin) ||
-                !Number.isFinite(latSec) ||
-                !Number.isFinite(lonDeg) ||
-                !Number.isFinite(lonMin) ||
-                !Number.isFinite(lonSec)
-
-              ) {
-
-                throw new Error(
-                  "Please complete all DMS coordinate fields."
-                );
-
-              }
-
-
-              if (
-
-                latMin < 0 ||
-                latMin >= 60 ||
-                lonMin < 0 ||
-                lonMin >= 60 ||
-                latSec < 0 ||
-                latSec >= 60 ||
-                lonSec < 0 ||
-                lonSec >= 60
-
-              ) {
-
-                throw new Error(
-                  "Minutes and seconds must be between 0 and less than 60."
-                );
-
-              }
-
-
-              lat =
-                Math.abs(latDeg) +
-                (latMin / 60) +
-                (latSec / 3600);
-
-
-              lon =
-                Math.abs(lonDeg) +
-                (lonMin / 60) +
-                (lonSec / 3600);
-
-
-              if (latDir === "S") {
-                lat = -lat;
-              }
-
-
-              if (lonDir === "W") {
-                lon = -lon;
-              }
-
-
-            }
-
-
-
-            /* ====================================
-               MGA94 / UTM INPUT
-               ==================================== */
-
-            else if (
-              selected === "utm"
-            ) {
-
-
-              const east =
-                parseFloat(
-                  document.getElementById(
-                    "utm-east"
-                  ).value
-                );
-
-
-              const north =
-                parseFloat(
-                  document.getElementById(
-                    "utm-north"
-                  ).value
-                );
-
-
-              const zone =
-                parseInt(
-                  document.getElementById(
-                    "utm-zone"
-                  ).value,
-                  10
-                );
-
-
-              if (
-
-                !Number.isFinite(east) ||
-                !Number.isFinite(north)
-
-              ) {
-
-                throw new Error(
-                  "Please enter a valid MGA94 Easting and Northing."
-                );
-
-              }
-
-
-              const utmProjection =
-                "+proj=utm " +
-                "+zone=" + zone + " " +
-                "+south " +
-                "+ellps=GRS80 " +
-                "+units=m " +
-                "+no_defs";
-
-
-              const geographicProjection =
-                "+proj=longlat " +
-                "+ellps=GRS80 " +
-                "+no_defs";
-
-
-              const converted =
-                proj4(
-
-                  utmProjection,
-
-                  geographicProjection,
-
-                  [
-                    east,
-                    north
-                  ]
-
-                );
-
-
-              lon =
-                converted[0];
-
-
-              lat =
-                converted[1];
-
-
-            }
-
-
-
-            /* ====================================
-               VALIDATE AUSTRALIAN LOCATION
-               ==================================== */
-
-            if (
-
-              lat < -45 ||
-              lat > -9 ||
-              lon < 110 ||
-              lon > 155
-
-            ) {
-
-              throw new Error(
-                "The coordinates appear to fall outside Australia. Please check the values, directions and MGA zone."
-              );
-
-            }
-
-
-
-            convertedLat =
-              lat;
-
-
-            convertedLon =
-              lon;
-
-
-
-            displayAllCoordinates(
-              lat,
-              lon
+          inputLat =
+            parseFloat(
+              document
+                .getElementById(
+                  "dd-lat"
+                )
+                .value
             );
 
 
-          }
-
-
-          catch (error) {
-
-
-            convertedLat =
-              null;
-
-
-            convertedLon =
-              null;
-
-
-            document
-              .getElementById(
-                "plot-btn"
-              )
-              .disabled =
-                true;
-
-
-            showError(
-              error.message
+          inputLon =
+            parseFloat(
+              document
+                .getElementById(
+                  "dd-lon"
+                )
+                .value
             );
 
+
+          if (
+            !Number.isFinite(inputLat) ||
+            !Number.isFinite(inputLon)
+          ) {
+
+            throw new Error(
+              "Please enter a valid latitude and longitude."
+            );
 
           }
 
 
         }
 
-      );
+
+
+        /* ================================================
+           DMM
+           ================================================ */
+
+        else if (selected === "dmm") {
+
+
+          const latDeg =
+            numberFrom(
+              "dmm-lat-deg"
+            );
+
+          const latMin =
+            numberFrom(
+              "dmm-lat-min"
+            );
+
+          const lonDeg =
+            numberFrom(
+              "dmm-lon-deg"
+            );
+
+          const lonMin =
+            numberFrom(
+              "dmm-lon-min"
+            );
+
+
+          if (
+            latMin < 0 ||
+            latMin >= 60 ||
+            lonMin < 0 ||
+            lonMin >= 60
+          ) {
+
+            throw new Error(
+              "Minutes must be between 0 and less than 60."
+            );
+
+          }
+
+
+          inputLat =
+            Math.abs(latDeg) +
+            latMin / 60;
+
+
+          inputLon =
+            Math.abs(lonDeg) +
+            lonMin / 60;
+
+
+          if (
+            document
+              .getElementById(
+                "dmm-lat-dir"
+              )
+              .value === "S"
+          ) {
+
+            inputLat =
+              -inputLat;
+
+          }
+
+
+          if (
+            document
+              .getElementById(
+                "dmm-lon-dir"
+              )
+              .value === "W"
+          ) {
+
+            inputLon =
+              -inputLon;
+
+          }
+
+
+        }
+
+
+
+        /* ================================================
+           DMS
+           ================================================ */
+
+        else if (selected === "dms") {
+
+
+          const latDeg =
+            numberFrom(
+              "dms-lat-deg"
+            );
+
+          const latMin =
+            numberFrom(
+              "dms-lat-min"
+            );
+
+          const latSec =
+            numberFrom(
+              "dms-lat-sec"
+            );
+
+
+          const lonDeg =
+            numberFrom(
+              "dms-lon-deg"
+            );
+
+          const lonMin =
+            numberFrom(
+              "dms-lon-min"
+            );
+
+          const lonSec =
+            numberFrom(
+              "dms-lon-sec"
+            );
+
+
+          if (
+            latMin < 0 ||
+            latMin >= 60 ||
+            lonMin < 0 ||
+            lonMin >= 60 ||
+            latSec < 0 ||
+            latSec >= 60 ||
+            lonSec < 0 ||
+            lonSec >= 60
+          ) {
+
+            throw new Error(
+              "Minutes and seconds must be between 0 and less than 60."
+            );
+
+          }
+
+
+          inputLat =
+            Math.abs(latDeg) +
+            latMin / 60 +
+            latSec / 3600;
+
+
+          inputLon =
+            Math.abs(lonDeg) +
+            lonMin / 60 +
+            lonSec / 3600;
+
+
+          if (
+            document
+              .getElementById(
+                "dms-lat-dir"
+              )
+              .value === "S"
+          ) {
+
+            inputLat =
+              -inputLat;
+
+          }
+
+
+          if (
+            document
+              .getElementById(
+                "dms-lon-dir"
+              )
+              .value === "W"
+          ) {
+
+            inputLon =
+              -inputLon;
+
+          }
+
+
+        }
+
+
+
+        /* ================================================
+           GRID INPUT
+           ================================================ */
+
+        else {
+
+
+          const east =
+            numberFrom(
+              "utm-east"
+            );
+
+          const north =
+            numberFrom(
+              "utm-north"
+            );
+
+
+          const zone =
+            parseInt(
+              document
+                .getElementById(
+                  "utm-zone"
+                )
+                .value,
+              10
+            );
+
+
+          let geographic;
+
+
+          if (inputDatum === "GDA94") {
+
+
+            geographic =
+              proj4(
+
+                gdaGridProjection(
+                  zone
+                ),
+
+                GDA94_GEOG,
+
+                [
+                  east,
+                  north
+                ]
+
+              );
+
+
+          }
+
+          else {
+
+
+            geographic =
+              proj4(
+
+                agdGridProjection(
+                  zone
+                ),
+
+                AGD66_GEOG,
+
+                [
+                  east,
+                  north
+                ]
+
+              );
+
+
+          }
+
+
+          inputLon =
+            geographic[0];
+
+
+          inputLat =
+            geographic[1];
+
+
+        }
+
+
+
+        /* ================================================
+           VALIDATE
+           ================================================ */
+
+        if (
+          inputLat < -45 ||
+          inputLat > -9 ||
+          inputLon < 110 ||
+          inputLon > 155
+        ) {
+
+          throw new Error(
+            "The coordinates appear to fall outside Australia. Check the values, datum and grid zone."
+          );
+
+        }
+
+
+
+        /* ================================================
+           CONVERT BETWEEN DATUMS
+           ================================================ */
+
+        if (inputDatum === "GDA94") {
+
+
+          currentGDA = {
+            lon: inputLon,
+            lat: inputLat
+          };
+
+
+          const agd =
+            proj4(
+
+              GDA94_GEOG,
+
+              AGD66_GEOG,
+
+              [
+                inputLon,
+                inputLat
+              ]
+
+            );
+
+
+          currentAGD = {
+            lon: agd[0],
+            lat: agd[1]
+          };
+
+
+        }
+
+        else {
+
+
+          currentAGD = {
+            lon: inputLon,
+            lat: inputLat
+          };
+
+
+          const gda =
+            proj4(
+
+              AGD66_GEOG,
+
+              GDA94_GEOG,
+
+              [
+                inputLon,
+                inputLat
+              ]
+
+            );
+
+
+          currentGDA = {
+            lon: gda[0],
+            lat: gda[1]
+          };
+
+
+        }
+
+
+
+        displayResults();
+
+
+      }
+
+
+      catch(error) {
+
+
+        currentGDA =
+          null;
+
+
+        currentAGD =
+          null;
+
+
+        document
+          .getElementById(
+            "plot-btn"
+          )
+          .disabled =
+            true;
+
+
+        showError(
+          error.message
+        );
+
+
+      }
+
+
+    }
 
 
 
     /* =====================================================
-       DISPLAY ALL COORDINATE FORMATS
+       DISPLAY RESULTS
        ===================================================== */
 
-    function displayAllCoordinates(
-      lat,
-      lon
-    ) {
+    function displayResults() {
 
 
-      /* ==========================================
-         DD
-         ========================================== */
+      /* GDA94 geographic */
 
-      const ddText =
-
-        "Lat. " +
-        lat.toFixed(6) +
-        "°   Lon. " +
-        lon.toFixed(6) +
-        "°";
+      document
+        .getElementById(
+          "gda-dd"
+        )
+        .textContent =
+          ddText(
+            currentGDA.lat,
+            currentGDA.lon
+          );
 
 
       document
         .getElementById(
-          "result-dd"
+          "gda-dmm"
         )
         .textContent =
-          ddText;
-
-
-
-      /* ==========================================
-         DMM
-         ========================================== */
-
-      const latDMM =
-        decimalToDMM(
-          lat,
-          true
-        );
-
-
-      const lonDMM =
-        decimalToDMM(
-          lon,
-          false
-        );
+          dmmText(
+            currentGDA.lat,
+            currentGDA.lon
+          );
 
 
       document
         .getElementById(
-          "result-dmm"
+          "gda-dms"
         )
         .textContent =
-
-          "Lat. " +
-          latDMM +
-
-          "   Lon. " +
-          lonDMM;
+          dmsText(
+            currentGDA.lat,
+            currentGDA.lon
+          );
 
 
 
-      /* ==========================================
-         DMS
-         ========================================== */
+      /* AGD66 geographic */
 
-      const latDMS =
-        decimalToDMS(
-          lat,
-          true
-        );
-
-
-      const lonDMS =
-        decimalToDMS(
-          lon,
-          false
-        );
+      document
+        .getElementById(
+          "agd-dd"
+        )
+        .textContent =
+          ddText(
+            currentAGD.lat,
+            currentAGD.lon
+          );
 
 
       document
         .getElementById(
-          "result-dms"
+          "agd-dmm"
         )
         .textContent =
-
-          "Lat. " +
-          latDMS +
-
-          "   Lon. " +
-          lonDMS;
+          dmmText(
+            currentAGD.lat,
+            currentAGD.lon
+          );
 
 
-
-      /* ==========================================
-         AUTOMATIC MGA94 ZONE
-         ========================================== */
-
-      let zone =
-        Math.floor(
-          (lon + 180) / 6
-        ) + 1;
-
-
-      /*
-        Australian mainland/Tasmanian zones
-        supported by this application.
-      */
-
-      if (zone < 49) {
-        zone = 49;
-      }
-
-      if (zone > 56) {
-        zone = 56;
-      }
+      document
+        .getElementById(
+          "agd-dms"
+        )
+        .textContent =
+          dmsText(
+            currentAGD.lat,
+            currentAGD.lon
+          );
 
 
 
-      const geographicProjection =
-        "+proj=longlat " +
-        "+ellps=GRS80 " +
-        "+no_defs";
+      /* ================================================
+         AUTOMATIC GRID ZONE
+         ================================================ */
+
+      const zone =
+        australianZone(
+          currentGDA.lon
+        );
 
 
-      const utmProjection =
-        "+proj=utm " +
-        "+zone=" + zone + " " +
-        "+south " +
-        "+ellps=GRS80 " +
-        "+units=m " +
-        "+no_defs";
 
+      /* GDA -> MGA94 */
 
-      const utm =
+      const mga =
         proj4(
 
-          geographicProjection,
+          GDA94_GEOG,
 
-          utmProjection,
+          gdaGridProjection(
+            zone
+          ),
 
           [
-            lon,
-            lat
+            currentGDA.lon,
+            currentGDA.lat
           ]
 
         );
 
 
-      const east =
-        Math.round(
-          utm[0]
+
+      document
+        .getElementById(
+          "gda-grid"
+        )
+        .textContent =
+
+          "East " +
+          Math.round(mga[0]) +
+
+          "   North " +
+          Math.round(mga[1]) +
+
+          "   Zone " +
+          zone;
+
+
+
+      /* AGD -> AMG66 */
+
+      const amg =
+        proj4(
+
+          AGD66_GEOG,
+
+          agdGridProjection(
+            zone
+          ),
+
+          [
+            currentAGD.lon,
+            currentAGD.lat
+          ]
+
         );
 
 
-      const north =
-        Math.round(
-          utm[1]
+
+      document
+        .getElementById(
+          "agd-grid"
+        )
+        .textContent =
+
+          "East " +
+          Math.round(amg[0]) +
+
+          "   North " +
+          Math.round(amg[1]) +
+
+          "   Zone " +
+          zone;
+
+
+
+      /* ================================================
+         APPROXIMATE DATUM DIFFERENCE
+         ================================================ */
+
+      const difference =
+        haversineDistance(
+
+          currentGDA.lat,
+          currentGDA.lon,
+
+          currentAGD.lat,
+          currentAGD.lon
+
         );
 
 
       document
         .getElementById(
-          "result-utm"
+          "datum-shift"
         )
-        .textContent =
+        .innerHTML =
 
-          "East " +
-          east +
+          "<strong>Coordinate datum difference:</strong> " +
+          difference.toFixed(0) +
+          " m" +
 
-          "   North " +
-          north +
-
-          "   Zone " +
-          zone;
+          "<br>Input interpreted as <strong>" +
+          inputDatum +
+          "</strong>.";
 
 
 
@@ -1736,8 +2110,69 @@
 
 
     /* =====================================================
-       DECIMAL TO DMM
+       OUTPUT FORMATTING
        ===================================================== */
+
+    function ddText(
+      lat,
+      lon
+    ) {
+
+      return (
+        "Lat. " +
+        lat.toFixed(6) +
+        "°   Lon. " +
+        lon.toFixed(6) +
+        "°"
+      );
+
+    }
+
+
+
+    function dmmText(
+      lat,
+      lon
+    ) {
+
+      return (
+        "Lat. " +
+        decimalToDMM(
+          lat,
+          true
+        ) +
+        "   Lon. " +
+        decimalToDMM(
+          lon,
+          false
+        )
+      );
+
+    }
+
+
+
+    function dmsText(
+      lat,
+      lon
+    ) {
+
+      return (
+        "Lat. " +
+        decimalToDMS(
+          lat,
+          true
+        ) +
+        "   Lon. " +
+        decimalToDMS(
+          lon,
+          false
+        )
+      );
+
+    }
+
+
 
     function decimalToDMM(
       value,
@@ -1759,31 +2194,25 @@
 
       const minutes =
         (
-          (absolute - degrees) *
-          60
-        );
+          absolute -
+          degrees
+        ) * 60;
 
 
-      let direction;
+      const direction =
+        latitude
 
+          ? (
+              value < 0
+                ? "S"
+                : "N"
+            )
 
-      if (latitude) {
-
-        direction =
-          value < 0
-            ? "S"
-            : "N";
-
-      }
-
-      else {
-
-        direction =
-          value < 0
-            ? "W"
-            : "E";
-
-      }
+          : (
+              value < 0
+                ? "W"
+                : "E"
+            );
 
 
       return (
@@ -1794,14 +2223,9 @@
         direction
       );
 
-
     }
 
 
-
-    /* =====================================================
-       DECIMAL TO DMS
-       ===================================================== */
 
     function decimalToDMS(
       value,
@@ -1821,45 +2245,40 @@
         );
 
 
-      const minutesFull =
+      const minuteTotal =
         (
-          absolute - degrees
+          absolute -
+          degrees
         ) * 60;
 
 
       const minutes =
         Math.floor(
-          minutesFull
+          minuteTotal
         );
 
 
       const seconds =
         (
-          minutesFull -
+          minuteTotal -
           minutes
         ) * 60;
 
 
-      let direction;
+      const direction =
+        latitude
 
+          ? (
+              value < 0
+                ? "S"
+                : "N"
+            )
 
-      if (latitude) {
-
-        direction =
-          value < 0
-            ? "S"
-            : "N";
-
-      }
-
-      else {
-
-        direction =
-          value < 0
-            ? "W"
-            : "E";
-
-      }
+          : (
+              value < 0
+                ? "W"
+                : "E"
+            );
 
 
       return (
@@ -1872,6 +2291,145 @@
         direction
       );
 
+    }
+
+
+
+    /* =====================================================
+       GRID ZONE
+       ===================================================== */
+
+    function australianZone(
+      longitude
+    ) {
+
+
+      let zone =
+        Math.floor(
+          (
+            longitude +
+            180
+          ) / 6
+        ) + 1;
+
+
+      if (zone < 49) {
+        zone = 49;
+      }
+
+
+      if (zone > 56) {
+        zone = 56;
+      }
+
+
+      return zone;
+
+    }
+
+
+
+    /* =====================================================
+       NUMBER INPUT HELPER
+       ===================================================== */
+
+    function numberFrom(
+      id
+    ) {
+
+
+      const value =
+        parseFloat(
+          document
+            .getElementById(
+              id
+            )
+            .value
+        );
+
+
+      if (!Number.isFinite(value)) {
+
+        throw new Error(
+          "Please complete all coordinate fields."
+        );
+
+      }
+
+
+      return value;
+
+    }
+
+
+
+    /* =====================================================
+       APPROXIMATE DISTANCE
+       ===================================================== */
+
+    function haversineDistance(
+      lat1,
+      lon1,
+      lat2,
+      lon2
+    ) {
+
+
+      const radius =
+        6371000;
+
+
+      const toRadians =
+        Math.PI / 180;
+
+
+      const p1 =
+        lat1 *
+        toRadians;
+
+
+      const p2 =
+        lat2 *
+        toRadians;
+
+
+      const dp =
+        (
+          lat2 -
+          lat1
+        ) *
+        toRadians;
+
+
+      const dl =
+        (
+          lon2 -
+          lon1
+        ) *
+        toRadians;
+
+
+      const a =
+
+        Math.sin(dp / 2) *
+        Math.sin(dp / 2) +
+
+        Math.cos(p1) *
+        Math.cos(p2) *
+
+        Math.sin(dl / 2) *
+        Math.sin(dl / 2);
+
+
+      const c =
+        2 *
+        Math.atan2(
+          Math.sqrt(a),
+          Math.sqrt(1 - a)
+        );
+
+
+      return radius * c;
 
     }
 
@@ -1889,21 +2447,19 @@
 
         "click",
 
-        function () {
+        function() {
 
 
-          if (
-
-            convertedLat === null ||
-            convertedLon === null
-
-          ) {
-
+          if (!currentGDA) {
             return;
-
           }
 
 
+          /*
+            Leaflet/OpenStreetMap uses modern geographic
+            coordinates, so always plot the transformed
+            GDA94 position.
+          */
 
           if (currentMarker) {
 
@@ -1914,32 +2470,16 @@
           }
 
 
-
           currentMarker =
             L.marker(
 
               [
-                convertedLat,
-                convertedLon
+                currentGDA.lat,
+                currentGDA.lon
               ]
 
             )
             .addTo(map);
-
-
-
-          const dmmLat =
-            decimalToDMM(
-              convertedLat,
-              true
-            );
-
-
-          const dmmLon =
-            decimalToDMM(
-              convertedLon,
-              false
-            );
 
 
           currentMarker
@@ -1947,29 +2487,29 @@
 
               "<strong>Target Coordinates</strong><br>" +
 
-              "Lat: " +
-              convertedLat.toFixed(6) +
-              "°<br>" +
+              "GDA94<br>" +
 
-              "Lon: " +
-              convertedLon.toFixed(6) +
-              "°<br><br>" +
+              currentGDA.lat.toFixed(6) +
+              ", " +
+              currentGDA.lon.toFixed(6) +
 
-              dmmLat +
-              "<br>" +
+              "<br><br>" +
 
-              dmmLon
+              "AGD66<br>" +
+
+              currentAGD.lat.toFixed(6) +
+              ", " +
+              currentAGD.lon.toFixed(6)
 
             )
             .openPopup();
 
 
-
           map.setView(
 
             [
-              convertedLat,
-              convertedLon
+              currentGDA.lat,
+              currentGDA.lon
             ],
 
             14
@@ -1984,7 +2524,32 @@
 
 
     /* =====================================================
-       ERROR FUNCTIONS
+       ESCAPE HTML
+       ===================================================== */
+
+    function escapeHtml(
+      text
+    ) {
+
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.textContent =
+        text;
+
+
+      return div.innerHTML;
+
+    }
+
+
+
+    /* =====================================================
+       ERRORS
        ===================================================== */
 
     function showError(
@@ -2005,8 +2570,8 @@
       errorDiv.style.display =
         "block";
 
-
     }
+
 
 
     function hideError() {
@@ -2024,7 +2589,6 @@
 
       errorDiv.textContent =
         "";
-
 
     }
 
