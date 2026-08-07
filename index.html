@@ -22,10 +22,10 @@
     crossorigin="">
   </script>
 
-  <!-- Proj4js for UTM conversion -->
+  <!-- Proj4js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.min.js"></script>
 
-  <!-- Leaflet Omnivore for reading KML -->
+  <!-- Leaflet Omnivore -->
   <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
 
 
@@ -37,7 +37,6 @@
       padding: 0;
       height: 100%;
     }
-
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -52,83 +51,194 @@
        ========================================== */
 
     #sidebar {
-      width: 320px;
+      width: 390px;
       background: #ffffff;
-      padding: 25px;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      padding: 22px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
       z-index: 1000;
       box-sizing: border-box;
+      overflow-y: auto;
     }
-
 
     h2 {
       color: #2c4c38;
       margin-top: 0;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       border-bottom: 2px solid #e2ece6;
       padding-bottom: 10px;
+      margin-bottom: 10px;
     }
 
-
     .description {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #556b2f;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       line-height: 1.4;
     }
 
 
-    .input-group {
-      margin-bottom: 15px;
+    /* ==========================================
+       COORDINATE TOOL
+       ========================================== */
+
+    .coord-box {
+      border: 1px solid #d7ddd9;
+      border-radius: 5px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafbfa;
     }
 
+    .coord-box-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #2c4c38;
+      margin-bottom: 10px;
+    }
 
-    label {
+    .format-choice {
+      display: flex;
+      align-items: center;
+      margin-bottom: 7px;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .format-choice input {
+      width: auto;
+      margin-right: 7px;
+    }
+
+    .coord-row {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .coord-row label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      min-width: 48px;
+    }
+
+    .coord-row input,
+    .coord-row select {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .coordinate-fields {
+      margin-top: 10px;
+    }
+
+    .field-section {
+      display: none;
+    }
+
+    .field-section.active {
       display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
-      font-size: 0.85rem;
-      color: #333333;
     }
-
 
     input,
     select {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #cccccc;
+      padding: 8px;
+      border: 1px solid #c8ceca;
       border-radius: 4px;
       box-sizing: border-box;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
+      background: white;
     }
 
+    .small-field {
+      width: 62px !important;
+      flex: none !important;
+    }
+
+    .direction-field {
+      width: 55px !important;
+      flex: none !important;
+    }
 
     button {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background: #2c4c38;
       color: white;
       border: none;
       border-radius: 4px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
     }
-
 
     button:hover {
       background: #1e3527;
     }
 
+    #convert-btn {
+      margin-top: 5px;
+    }
+
+    #plot-btn {
+      margin-top: 10px;
+      background: #456b50;
+    }
+
+    #plot-btn:disabled {
+      background: #aeb8b1;
+      cursor: default;
+    }
 
     #error-msg {
       color: #b22222;
-      font-size: 0.85rem;
-      margin-top: 10px;
+      font-size: 0.8rem;
+      margin-top: 9px;
       display: none;
       font-weight: 500;
+    }
+
+
+    /* ==========================================
+       RESULTS
+       ========================================== */
+
+    #output-box {
+      display: none;
+    }
+
+    .result-row {
+      padding: 7px 0;
+      border-bottom: 1px solid #e3e7e4;
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .result-label {
+      display: block;
+      font-weight: 700;
+      color: #405247;
+      margin-bottom: 2px;
+    }
+
+    .result-value {
+      font-family: Consolas, "Courier New", monospace;
+      color: #111;
+      word-break: break-word;
+    }
+
+    .datum-note {
+      font-size: 0.72rem;
+      color: #666;
+      line-height: 1.35;
+      margin-top: 8px;
     }
 
 
@@ -151,16 +261,11 @@
       background: transparent;
       border: none;
       box-shadow: none;
-
       color: #222222;
-
       font-size: 11px;
       font-weight: 600;
-
       text-align: center;
-
       white-space: nowrap;
-
       pointer-events: none;
 
       text-shadow:
@@ -170,7 +275,6 @@
          1px  1px 0 #ffffff,
          0px  0px 3px #ffffff;
     }
-
 
     .subdivision-label::before {
       display: none;
@@ -187,14 +291,13 @@
         flex-direction: column-reverse;
       }
 
-
       #sidebar {
         width: 100%;
+        max-height: 55vh;
       }
 
-
       #map {
-        height: 60vh;
+        height: 45vh;
       }
 
     }
@@ -213,169 +316,382 @@
 
   <div id="sidebar">
 
-
-    <h2>
-      Botanical Subdivisions Lookup
-    </h2>
-
+    <h2>Botanical Subdivisions Lookup</h2>
 
     <div class="description">
-
-      Search coordinates to plot botanical field data across Australia.
-
-      Supports standard Latitude / Longitude or Australian UTM Grid coordinates.
-
-      Use the layer control on the map to switch botanical subdivisions and
-      subdivision labels on or off.
-
+      Enter coordinates in any supported format, convert them to the other
+      coordinate formats, then plot the location on the botanical subdivisions map.
     </div>
 
 
-    <!-- Coordinate type -->
+    <!-- ==========================================
+         INPUT COORDINATES
+         ========================================== -->
 
-    <div class="input-group">
+    <div class="coord-box">
 
-      <label for="coord-type">
-        Coordinate Input Type
+      <div class="coord-box-title">
+        Input Coordinates
+      </div>
+
+
+      <label class="format-choice">
+        <input type="radio" name="coord-format" value="dd" checked>
+        Lat/Long – Decimal Degrees (DD)
+      </label>
+
+      <label class="format-choice">
+        <input type="radio" name="coord-format" value="dmm">
+        Lat/Long – Degrees Decimal Minutes (DMM)
+      </label>
+
+      <label class="format-choice">
+        <input type="radio" name="coord-format" value="dms">
+        Lat/Long – Degrees Minutes Seconds (DMS)
+      </label>
+
+      <label class="format-choice">
+        <input type="radio" name="coord-format" value="utm">
+        Grid Reference – MGA94 / UTM
       </label>
 
 
-      <select id="coord-type">
-
-        <option value="latlng">
-          Latitude / Longitude (Decimal)
-        </option>
-
-        <option value="utm">
-          UTM (Easting / Northing)
-        </option>
-
-      </select>
-
-    </div>
+      <div class="coordinate-fields">
 
 
+        <!-- ======================================
+             DECIMAL DEGREES
+             ====================================== -->
 
-    <!-- UTM zone -->
+        <div id="fields-dd" class="field-section active">
 
-    <div
-      id="utm-fields"
-      style="display: none;"
-    >
+          <div class="coord-row">
+            <label>Latitude</label>
+            <input
+              type="text"
+              id="dd-lat"
+              placeholder="-33.8688"
+            >
+          </div>
 
-      <div class="input-group">
+          <div class="coord-row">
+            <label>Longitude</label>
+            <input
+              type="text"
+              id="dd-lon"
+              placeholder="151.2093"
+            >
+          </div>
+
+        </div>
 
 
-        <label for="utm-zone">
-          Australian UTM Zone
-        </label>
+        <!-- ======================================
+             DMM
+             ====================================== -->
+
+        <div id="fields-dmm" class="field-section">
+
+          <div class="coord-row">
+
+            <label>Latitude</label>
+
+            <input
+              type="text"
+              id="dmm-lat-deg"
+              class="small-field"
+              placeholder="33"
+            >
+
+            <span>°</span>
+
+            <input
+              type="text"
+              id="dmm-lat-min"
+              placeholder="52.1280"
+            >
+
+            <span>′</span>
+
+            <select
+              id="dmm-lat-dir"
+              class="direction-field"
+            >
+              <option value="S">S</option>
+              <option value="N">N</option>
+            </select>
+
+          </div>
 
 
-        <select id="utm-zone">
+          <div class="coord-row">
 
-          <option value="49">
-            Zone 49 (WA West)
-          </option>
+            <label>Longitude</label>
 
-          <option value="50">
-            Zone 50 (WA Central)
-          </option>
+            <input
+              type="text"
+              id="dmm-lon-deg"
+              class="small-field"
+              placeholder="151"
+            >
 
-          <option value="51">
-            Zone 51 (WA East / NT West)
-          </option>
+            <span>°</span>
 
-          <option value="52">
-            Zone 52 (NT Central / SA West)
-          </option>
+            <input
+              type="text"
+              id="dmm-lon-min"
+              placeholder="12.5580"
+            >
 
-          <option value="53">
-            Zone 53 (NT East / SA Central)
-          </option>
+            <span>′</span>
 
-          <option value="54">
-            Zone 54 (QLD West / NSW West / SA East)
-          </option>
+            <select
+              id="dmm-lon-dir"
+              class="direction-field"
+            >
+              <option value="E">E</option>
+              <option value="W">W</option>
+            </select>
 
-          <option value="55">
-            Zone 55 (QLD Central / NSW Central / VIC / TAS)
-          </option>
+          </div>
 
-          <option value="56">
-            Zone 56 (QLD East / NSW East)
-          </option>
+        </div>
 
-        </select>
+
+        <!-- ======================================
+             DMS
+             ====================================== -->
+
+        <div id="fields-dms" class="field-section">
+
+          <div class="coord-row">
+
+            <label>Latitude</label>
+
+            <input
+              type="text"
+              id="dms-lat-deg"
+              class="small-field"
+              placeholder="33"
+            >
+
+            <span>°</span>
+
+            <input
+              type="text"
+              id="dms-lat-min"
+              class="small-field"
+              placeholder="52"
+            >
+
+            <span>′</span>
+
+            <input
+              type="text"
+              id="dms-lat-sec"
+              placeholder="7.68"
+            >
+
+            <span>″</span>
+
+            <select
+              id="dms-lat-dir"
+              class="direction-field"
+            >
+              <option value="S">S</option>
+              <option value="N">N</option>
+            </select>
+
+          </div>
+
+
+          <div class="coord-row">
+
+            <label>Longitude</label>
+
+            <input
+              type="text"
+              id="dms-lon-deg"
+              class="small-field"
+              placeholder="151"
+            >
+
+            <span>°</span>
+
+            <input
+              type="text"
+              id="dms-lon-min"
+              class="small-field"
+              placeholder="12"
+            >
+
+            <span>′</span>
+
+            <input
+              type="text"
+              id="dms-lon-sec"
+              placeholder="33.48"
+            >
+
+            <span>″</span>
+
+            <select
+              id="dms-lon-dir"
+              class="direction-field"
+            >
+              <option value="E">E</option>
+              <option value="W">W</option>
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- ======================================
+             MGA94 / UTM
+             ====================================== -->
+
+        <div id="fields-utm" class="field-section">
+
+          <div class="coord-row">
+            <label>Easting</label>
+            <input
+              type="text"
+              id="utm-east"
+              placeholder="334000"
+            >
+          </div>
+
+          <div class="coord-row">
+            <label>Northing</label>
+            <input
+              type="text"
+              id="utm-north"
+              placeholder="6251000"
+            >
+          </div>
+
+          <div class="coord-row">
+
+            <label>Zone</label>
+
+            <select id="utm-zone">
+
+              <option value="49">49</option>
+              <option value="50">50</option>
+              <option value="51">51</option>
+              <option value="52">52</option>
+              <option value="53">53</option>
+              <option value="54">54</option>
+              <option value="55" selected>55</option>
+              <option value="56">56</option>
+
+            </select>
+
+          </div>
+
+        </div>
 
 
       </div>
 
-    </div>
+
+      <button id="convert-btn">
+        Convert Input Coordinates
+      </button>
 
 
-
-    <!-- First coordinate -->
-
-    <div class="input-group">
-
-      <label
-        id="label-x"
-        for="input-x"
-      >
-
-        Latitude (e.g., -33.8688)
-
-      </label>
-
-
-      <input
-        type="text"
-        id="input-x"
-        placeholder="-33.8688"
-      >
+      <div id="error-msg"></div>
 
     </div>
 
 
 
-    <!-- Second coordinate -->
+    <!-- ==========================================
+         OUTPUT COORDINATES
+         ========================================== -->
 
-    <div class="input-group">
+    <div
+      class="coord-box"
+      id="output-box"
+    >
 
-      <label
-        id="label-y"
-        for="input-y"
+      <div class="coord-box-title">
+        Output Coordinates
+      </div>
+
+
+      <div class="result-row">
+
+        <span class="result-label">
+          Lat/Long (GDA94) – DD
+        </span>
+
+        <span
+          class="result-value"
+          id="result-dd"
+        ></span>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <span class="result-label">
+          Lat/Long (GDA94) – DMM
+        </span>
+
+        <span
+          class="result-value"
+          id="result-dmm"
+        ></span>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <span class="result-label">
+          Lat/Long (GDA94) – DMS
+        </span>
+
+        <span
+          class="result-value"
+          id="result-dms"
+        ></span>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <span class="result-label">
+          Grid Reference (MGA94)
+        </span>
+
+        <span
+          class="result-value"
+          id="result-utm"
+        ></span>
+
+      </div>
+
+
+      <button
+        id="plot-btn"
+        disabled
       >
-
-        Longitude (e.g., 151.2093)
-
-      </label>
+        Plot and Zoom
+      </button>
 
 
-      <input
-        type="text"
-        id="input-y"
-        placeholder="151.2093"
-      >
+      <div class="datum-note">
+        Geographic coordinates are treated as GDA94 for this tool.
+        MGA94 grid coordinates use Australian UTM zones 49–56.
+      </div>
 
     </div>
-
-
-
-    <!-- Locate button -->
-
-    <button id="locate-btn">
-
-      Locate Subdivision Spot
-
-    </button>
-
-
-
-    <!-- Error messages -->
-
-    <div id="error-msg"></div>
-
 
   </div>
 
@@ -458,10 +774,6 @@
       function () {
 
 
-        /* --------------------------------------
-           Zoom to the subdivision layer
-           -------------------------------------- */
-
         const subdivisionBounds =
           subdivisions.getBounds();
 
@@ -488,10 +800,6 @@
             let subdivisionName = null;
 
 
-
-            /* ----------------------------------
-               Read embedded KML name
-               ---------------------------------- */
 
             if (
 
@@ -620,10 +928,6 @@
 
 
 
-        /* --------------------------------------
-           Show labels when page first opens
-           -------------------------------------- */
-
         subdivisionLabels.addTo(map);
 
 
@@ -653,18 +957,15 @@
     };
 
 
-
     const overlayMaps = {
 
       "Botanical Subdivisions":
         subdivisions,
 
-
       "Subdivision Labels":
         subdivisionLabels
 
     };
-
 
 
     L.control.layers(
@@ -683,133 +984,70 @@
 
 
 
-    /* ==========================================
-       COORDINATE SEARCH VARIABLES
-       ========================================== */
+    /* =====================================================
+       NEW COORDINATE CONVERTER
+       ===================================================== */
 
     let currentMarker = null;
 
-
-
-    const coordTypeSelect =
-
-      document.getElementById(
-        "coord-type"
-      );
-
-
-
-    const utmFields =
-
-      document.getElementById(
-        "utm-fields"
-      );
-
-
-
-    const labelX =
-
-      document.getElementById(
-        "label-x"
-      );
-
-
-
-    const labelY =
-
-      document.getElementById(
-        "label-y"
-      );
-
-
-
-    const inputX =
-
-      document.getElementById(
-        "input-x"
-      );
-
-
-
-    const inputY =
-
-      document.getElementById(
-        "input-y"
-      );
+    let convertedLat = null;
+    let convertedLon = null;
 
 
 
     /* ==========================================
-       CHANGE COORDINATE INPUT TYPE
+       SWITCH INPUT FORMAT
        ========================================== */
 
-    coordTypeSelect.addEventListener(
-
-      "change",
-
-      function () {
-
-
-        if (
-          this.value === "utm"
-        ) {
+    const formatRadios =
+      document.querySelectorAll(
+        'input[name="coord-format"]'
+      );
 
 
-          utmFields.style.display =
-            "block";
+    formatRadios.forEach(
+
+      function (radio) {
 
 
+        radio.addEventListener(
 
-          labelX.innerText =
-            "Easting (6 digits, e.g., 334000)";
+          "change",
 
-
-
-          labelY.innerText =
-            "Northing (7 digits, e.g., 6251000)";
+          function () {
 
 
+            document
+              .querySelectorAll(
+                ".field-section"
+              )
+              .forEach(
 
-          inputX.placeholder =
-            "334000";
+                function (section) {
 
+                  section.classList.remove(
+                    "active"
+                  );
 
+                }
 
-          inputY.placeholder =
-            "6251000";
-
-
-        }
-
-
-        else {
-
-
-          utmFields.style.display =
-            "none";
+              );
 
 
-
-          labelX.innerText =
-            "Latitude (e.g., -33.8688)";
-
-
-
-          labelY.innerText =
-            "Longitude (e.g., 151.2093)";
-
+            document
+              .getElementById(
+                "fields-" + this.value
+              )
+              .classList.add(
+                "active"
+              );
 
 
-          inputX.placeholder =
-            "-33.8688";
+            hideError();
 
+          }
 
-
-          inputY.placeholder =
-            "151.2093";
-
-
-        }
+        );
 
 
       }
@@ -819,12 +1057,12 @@
 
 
     /* ==========================================
-       LOCATE COORDINATES
+       CONVERT BUTTON
        ========================================== */
 
     document
       .getElementById(
-        "locate-btn"
+        "convert-btn"
       )
       .addEventListener(
 
@@ -833,55 +1071,833 @@
         function () {
 
 
+          hideError();
 
-          const errorDiv =
 
-            document.getElementById(
-              "error-msg"
+          const selected =
+            document.querySelector(
+              'input[name="coord-format"]:checked'
+            ).value;
+
+
+          let lat;
+          let lon;
+
+
+
+          try {
+
+
+            /* ====================================
+               DECIMAL DEGREES INPUT
+               ==================================== */
+
+            if (selected === "dd") {
+
+
+              lat =
+                parseFloat(
+                  document
+                    .getElementById(
+                      "dd-lat"
+                    )
+                    .value
+                );
+
+
+              lon =
+                parseFloat(
+                  document
+                    .getElementById(
+                      "dd-lon"
+                    )
+                    .value
+                );
+
+
+              if (
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lon)
+              ) {
+
+                throw new Error(
+                  "Please enter a valid latitude and longitude."
+                );
+
+              }
+
+
+            }
+
+
+
+            /* ====================================
+               DMM INPUT
+               ==================================== */
+
+            else if (
+              selected === "dmm"
+            ) {
+
+
+              const latDeg =
+                parseFloat(
+                  document.getElementById(
+                    "dmm-lat-deg"
+                  ).value
+                );
+
+
+              const latMin =
+                parseFloat(
+                  document.getElementById(
+                    "dmm-lat-min"
+                  ).value
+                );
+
+
+              const lonDeg =
+                parseFloat(
+                  document.getElementById(
+                    "dmm-lon-deg"
+                  ).value
+                );
+
+
+              const lonMin =
+                parseFloat(
+                  document.getElementById(
+                    "dmm-lon-min"
+                  ).value
+                );
+
+
+              const latDir =
+                document.getElementById(
+                  "dmm-lat-dir"
+                ).value;
+
+
+              const lonDir =
+                document.getElementById(
+                  "dmm-lon-dir"
+                ).value;
+
+
+
+              if (
+
+                !Number.isFinite(latDeg) ||
+                !Number.isFinite(latMin) ||
+                !Number.isFinite(lonDeg) ||
+                !Number.isFinite(lonMin)
+
+              ) {
+
+                throw new Error(
+                  "Please complete all DMM coordinate fields."
+                );
+
+              }
+
+
+              if (
+                latMin < 0 ||
+                latMin >= 60 ||
+                lonMin < 0 ||
+                lonMin >= 60
+              ) {
+
+                throw new Error(
+                  "Minutes must be between 0 and less than 60."
+                );
+
+              }
+
+
+              lat =
+                Math.abs(latDeg) +
+                (latMin / 60);
+
+
+              lon =
+                Math.abs(lonDeg) +
+                (lonMin / 60);
+
+
+              if (latDir === "S") {
+                lat = -lat;
+              }
+
+
+              if (lonDir === "W") {
+                lon = -lon;
+              }
+
+
+            }
+
+
+
+            /* ====================================
+               DMS INPUT
+               ==================================== */
+
+            else if (
+              selected === "dms"
+            ) {
+
+
+              const latDeg =
+                parseFloat(
+                  document.getElementById(
+                    "dms-lat-deg"
+                  ).value
+                );
+
+
+              const latMin =
+                parseFloat(
+                  document.getElementById(
+                    "dms-lat-min"
+                  ).value
+                );
+
+
+              const latSec =
+                parseFloat(
+                  document.getElementById(
+                    "dms-lat-sec"
+                  ).value
+                );
+
+
+              const lonDeg =
+                parseFloat(
+                  document.getElementById(
+                    "dms-lon-deg"
+                  ).value
+                );
+
+
+              const lonMin =
+                parseFloat(
+                  document.getElementById(
+                    "dms-lon-min"
+                  ).value
+                );
+
+
+              const lonSec =
+                parseFloat(
+                  document.getElementById(
+                    "dms-lon-sec"
+                  ).value
+                );
+
+
+              const latDir =
+                document.getElementById(
+                  "dms-lat-dir"
+                ).value;
+
+
+              const lonDir =
+                document.getElementById(
+                  "dms-lon-dir"
+                ).value;
+
+
+
+              if (
+
+                !Number.isFinite(latDeg) ||
+                !Number.isFinite(latMin) ||
+                !Number.isFinite(latSec) ||
+                !Number.isFinite(lonDeg) ||
+                !Number.isFinite(lonMin) ||
+                !Number.isFinite(lonSec)
+
+              ) {
+
+                throw new Error(
+                  "Please complete all DMS coordinate fields."
+                );
+
+              }
+
+
+              if (
+
+                latMin < 0 ||
+                latMin >= 60 ||
+                lonMin < 0 ||
+                lonMin >= 60 ||
+                latSec < 0 ||
+                latSec >= 60 ||
+                lonSec < 0 ||
+                lonSec >= 60
+
+              ) {
+
+                throw new Error(
+                  "Minutes and seconds must be between 0 and less than 60."
+                );
+
+              }
+
+
+              lat =
+                Math.abs(latDeg) +
+                (latMin / 60) +
+                (latSec / 3600);
+
+
+              lon =
+                Math.abs(lonDeg) +
+                (lonMin / 60) +
+                (lonSec / 3600);
+
+
+              if (latDir === "S") {
+                lat = -lat;
+              }
+
+
+              if (lonDir === "W") {
+                lon = -lon;
+              }
+
+
+            }
+
+
+
+            /* ====================================
+               MGA94 / UTM INPUT
+               ==================================== */
+
+            else if (
+              selected === "utm"
+            ) {
+
+
+              const east =
+                parseFloat(
+                  document.getElementById(
+                    "utm-east"
+                  ).value
+                );
+
+
+              const north =
+                parseFloat(
+                  document.getElementById(
+                    "utm-north"
+                  ).value
+                );
+
+
+              const zone =
+                parseInt(
+                  document.getElementById(
+                    "utm-zone"
+                  ).value,
+                  10
+                );
+
+
+              if (
+
+                !Number.isFinite(east) ||
+                !Number.isFinite(north)
+
+              ) {
+
+                throw new Error(
+                  "Please enter a valid MGA94 Easting and Northing."
+                );
+
+              }
+
+
+              const utmProjection =
+                "+proj=utm " +
+                "+zone=" + zone + " " +
+                "+south " +
+                "+ellps=GRS80 " +
+                "+units=m " +
+                "+no_defs";
+
+
+              const geographicProjection =
+                "+proj=longlat " +
+                "+ellps=GRS80 " +
+                "+no_defs";
+
+
+              const converted =
+                proj4(
+
+                  utmProjection,
+
+                  geographicProjection,
+
+                  [
+                    east,
+                    north
+                  ]
+
+                );
+
+
+              lon =
+                converted[0];
+
+
+              lat =
+                converted[1];
+
+
+            }
+
+
+
+            /* ====================================
+               VALIDATE AUSTRALIAN LOCATION
+               ==================================== */
+
+            if (
+
+              lat < -45 ||
+              lat > -9 ||
+              lon < 110 ||
+              lon > 155
+
+            ) {
+
+              throw new Error(
+                "The coordinates appear to fall outside Australia. Please check the values, directions and MGA zone."
+              );
+
+            }
+
+
+
+            convertedLat =
+              lat;
+
+
+            convertedLon =
+              lon;
+
+
+
+            displayAllCoordinates(
+              lat,
+              lon
             );
 
 
-
-          errorDiv.style.display =
-            "none";
+          }
 
 
-
-          const val1 =
-
-            parseFloat(
-              inputX.value.trim()
-            );
+          catch (error) {
 
 
-
-          const val2 =
-
-            parseFloat(
-              inputY.value.trim()
-            );
+            convertedLat =
+              null;
 
 
+            convertedLon =
+              null;
 
-          /* ------------------------------------
-             Validate input
-             ------------------------------------ */
 
-          if (
-
-            isNaN(val1) ||
-
-            isNaN(val2)
-
-          ) {
+            document
+              .getElementById(
+                "plot-btn"
+              )
+              .disabled =
+                true;
 
 
             showError(
-
-              "Please enter valid numerical coordinate values."
-
+              error.message
             );
 
+
+          }
+
+
+        }
+
+      );
+
+
+
+    /* =====================================================
+       DISPLAY ALL COORDINATE FORMATS
+       ===================================================== */
+
+    function displayAllCoordinates(
+      lat,
+      lon
+    ) {
+
+
+      /* ==========================================
+         DD
+         ========================================== */
+
+      const ddText =
+
+        "Lat. " +
+        lat.toFixed(6) +
+        "°   Lon. " +
+        lon.toFixed(6) +
+        "°";
+
+
+      document
+        .getElementById(
+          "result-dd"
+        )
+        .textContent =
+          ddText;
+
+
+
+      /* ==========================================
+         DMM
+         ========================================== */
+
+      const latDMM =
+        decimalToDMM(
+          lat,
+          true
+        );
+
+
+      const lonDMM =
+        decimalToDMM(
+          lon,
+          false
+        );
+
+
+      document
+        .getElementById(
+          "result-dmm"
+        )
+        .textContent =
+
+          "Lat. " +
+          latDMM +
+
+          "   Lon. " +
+          lonDMM;
+
+
+
+      /* ==========================================
+         DMS
+         ========================================== */
+
+      const latDMS =
+        decimalToDMS(
+          lat,
+          true
+        );
+
+
+      const lonDMS =
+        decimalToDMS(
+          lon,
+          false
+        );
+
+
+      document
+        .getElementById(
+          "result-dms"
+        )
+        .textContent =
+
+          "Lat. " +
+          latDMS +
+
+          "   Lon. " +
+          lonDMS;
+
+
+
+      /* ==========================================
+         AUTOMATIC MGA94 ZONE
+         ========================================== */
+
+      let zone =
+        Math.floor(
+          (lon + 180) / 6
+        ) + 1;
+
+
+      /*
+        Australian mainland/Tasmanian zones
+        supported by this application.
+      */
+
+      if (zone < 49) {
+        zone = 49;
+      }
+
+      if (zone > 56) {
+        zone = 56;
+      }
+
+
+
+      const geographicProjection =
+        "+proj=longlat " +
+        "+ellps=GRS80 " +
+        "+no_defs";
+
+
+      const utmProjection =
+        "+proj=utm " +
+        "+zone=" + zone + " " +
+        "+south " +
+        "+ellps=GRS80 " +
+        "+units=m " +
+        "+no_defs";
+
+
+      const utm =
+        proj4(
+
+          geographicProjection,
+
+          utmProjection,
+
+          [
+            lon,
+            lat
+          ]
+
+        );
+
+
+      const east =
+        Math.round(
+          utm[0]
+        );
+
+
+      const north =
+        Math.round(
+          utm[1]
+        );
+
+
+      document
+        .getElementById(
+          "result-utm"
+        )
+        .textContent =
+
+          "East " +
+          east +
+
+          "   North " +
+          north +
+
+          "   Zone " +
+          zone;
+
+
+
+      document
+        .getElementById(
+          "output-box"
+        )
+        .style.display =
+          "block";
+
+
+      document
+        .getElementById(
+          "plot-btn"
+        )
+        .disabled =
+          false;
+
+
+    }
+
+
+
+    /* =====================================================
+       DECIMAL TO DMM
+       ===================================================== */
+
+    function decimalToDMM(
+      value,
+      latitude
+    ) {
+
+
+      const absolute =
+        Math.abs(
+          value
+        );
+
+
+      const degrees =
+        Math.floor(
+          absolute
+        );
+
+
+      const minutes =
+        (
+          (absolute - degrees) *
+          60
+        );
+
+
+      let direction;
+
+
+      if (latitude) {
+
+        direction =
+          value < 0
+            ? "S"
+            : "N";
+
+      }
+
+      else {
+
+        direction =
+          value < 0
+            ? "W"
+            : "E";
+
+      }
+
+
+      return (
+        degrees +
+        "° " +
+        minutes.toFixed(4) +
+        "′ " +
+        direction
+      );
+
+
+    }
+
+
+
+    /* =====================================================
+       DECIMAL TO DMS
+       ===================================================== */
+
+    function decimalToDMS(
+      value,
+      latitude
+    ) {
+
+
+      const absolute =
+        Math.abs(
+          value
+        );
+
+
+      const degrees =
+        Math.floor(
+          absolute
+        );
+
+
+      const minutesFull =
+        (
+          absolute - degrees
+        ) * 60;
+
+
+      const minutes =
+        Math.floor(
+          minutesFull
+        );
+
+
+      const seconds =
+        (
+          minutesFull -
+          minutes
+        ) * 60;
+
+
+      let direction;
+
+
+      if (latitude) {
+
+        direction =
+          value < 0
+            ? "S"
+            : "N";
+
+      }
+
+      else {
+
+        direction =
+          value < 0
+            ? "W"
+            : "E";
+
+      }
+
+
+      return (
+        degrees +
+        "° " +
+        minutes +
+        "′ " +
+        seconds.toFixed(2) +
+        "″ " +
+        direction
+      );
+
+
+    }
+
+
+
+    /* =====================================================
+       PLOT AND ZOOM
+       ===================================================== */
+
+    document
+      .getElementById(
+        "plot-btn"
+      )
+      .addEventListener(
+
+        "click",
+
+        function () {
+
+
+          if (
+
+            convertedLat === null ||
+            convertedLon === null
+
+          ) {
 
             return;
 
@@ -889,210 +1905,71 @@
 
 
 
-          let targetLat;
-
-          let targetLng;
-
-
-
-          /* ====================================
-             UTM COORDINATES
-             ==================================== */
-
-          if (
-
-            coordTypeSelect.value ===
-            "utm"
-
-          ) {
-
-
-
-            const zone =
-
-              document
-                .getElementById(
-                  "utm-zone"
-                )
-                .value;
-
-
-
-            const utmProj =
-
-              `+proj=utm +zone=${zone} +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
-
-
-
-            const wgs84Proj =
-
-              "+proj=longlat +datum=WGS84 +no_defs";
-
-
-
-            try {
-
-
-
-              const converted =
-
-                proj4(
-
-                  utmProj,
-
-                  wgs84Proj,
-
-                  [
-                    val1,
-                    val2
-                  ]
-
-                );
-
-
-
-              targetLng =
-                converted[0];
-
-
-
-              targetLat =
-                converted[1];
-
-
-
-              /* --------------------------------
-                 Check Australia bounds
-                 -------------------------------- */
-
-              if (
-
-                targetLat < -45 ||
-
-                targetLat > -10 ||
-
-                targetLng < 110 ||
-
-                targetLng > 155
-
-              ) {
-
-
-
-                showError(
-
-                  "The converted UTM components fall outside the bounds of Australia."
-
-                );
-
-
-
-                return;
-
-
-              }
-
-
-
-            }
-
-
-            catch (err) {
-
-
-
-              showError(
-
-                "Projection failed. Verify your Easting and Northing values."
-
-              );
-
-
-
-              return;
-
-
-            }
-
-
-          }
-
-
-
-          /* ====================================
-             LATITUDE / LONGITUDE
-             ==================================== */
-
-          else {
-
-
-            targetLat =
-              val1;
-
-
-
-            targetLng =
-              val2;
-
-
-          }
-
-
-
-          /* ====================================
-             REMOVE EXISTING MARKER
-             ==================================== */
-
           if (currentMarker) {
-
 
             map.removeLayer(
               currentMarker
             );
 
-
           }
 
 
 
-          /* ====================================
-             ADD LOCATION MARKER
-             ==================================== */
-
           currentMarker =
-
             L.marker(
 
               [
-                targetLat,
-                targetLng
+                convertedLat,
+                convertedLon
               ]
 
             )
+            .addTo(map);
 
-            .addTo(map)
 
+
+          const dmmLat =
+            decimalToDMM(
+              convertedLat,
+              true
+            );
+
+
+          const dmmLon =
+            decimalToDMM(
+              convertedLon,
+              false
+            );
+
+
+          currentMarker
             .bindPopup(
 
-              `<b>Target Field Coordinates</b><br>
-               Lat: ${targetLat.toFixed(5)}<br>
-               Lng: ${targetLng.toFixed(5)}`
+              "<strong>Target Coordinates</strong><br>" +
+
+              "Lat: " +
+              convertedLat.toFixed(6) +
+              "°<br>" +
+
+              "Lon: " +
+              convertedLon.toFixed(6) +
+              "°<br><br>" +
+
+              dmmLat +
+              "<br>" +
+
+              dmmLon
 
             )
-
             .openPopup();
 
 
 
-          /* ====================================
-             ZOOM TO LOCATION
-             ==================================== */
-
           map.setView(
 
             [
-              targetLat,
-              targetLng
+              convertedLat,
+              convertedLon
             ],
 
             14
@@ -1106,28 +1983,47 @@
 
 
 
-    /* ==========================================
-       DISPLAY ERROR
-       ========================================== */
+    /* =====================================================
+       ERROR FUNCTIONS
+       ===================================================== */
 
-    function showError(text) {
+    function showError(
+      text
+    ) {
 
 
       const errorDiv =
-
         document.getElementById(
           "error-msg"
         );
 
 
-
-      errorDiv.innerText =
+      errorDiv.textContent =
         text;
-
 
 
       errorDiv.style.display =
         "block";
+
+
+    }
+
+
+    function hideError() {
+
+
+      const errorDiv =
+        document.getElementById(
+          "error-msg"
+        );
+
+
+      errorDiv.style.display =
+        "none";
+
+
+      errorDiv.textContent =
+        "";
 
 
     }
