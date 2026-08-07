@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Australian Botanical Subdivisions - Coordinate Search</title>
   
-  <!-- Core Layout Style Frameworks -->
-  <link rel="stylesheet" href="https://cloudflare.com" />
+  <!-- Bulletproof Official Core Leaflet CSS CDN -->
+  <link rel="stylesheet" href="https://unpkg.com" />
   
-  <!-- Cloud Mapping Software Deliveries -->
-  <script src="https://cloudflare.com"></script>
+  <!-- Bulletproof Official Core Leaflet JavaScript CDN -->
+  <script src="https://unpkg.com"></script>
+
+  <!-- Projection and KML parsing helpers -->
   <script src="https://cloudflare.com"></script>
   <script src="https://cloudflare.com"></script>
 
@@ -108,114 +110,106 @@
   <div id="map"></div>
 
   <script>
-    // WINDOW ONLOAD FIX: Forces the script to hold execution until Leaflet ('L') exists
-    window.onload = function() {
-      if (typeof L === 'undefined') {
-        alert("The Leaflet map engine failed to load over the network. Please refresh your browser window.");
+    // Build Leaflet Map Canvas Grid Base - Centers directly over Australia
+    const map = L.map('map').setView([-27.0, 133.0], 4);
+
+    // Load base atlas tiles instantly
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Import your custom Google Subdivisions dataset safely 
+    let customLayer;
+    try {
+      customLayer = omnivore.kml('subdivisions.kml')
+        .on('ready', function() {
+          console.log("KML data layer processed successfully!");
+          map.fitBounds(customLayer.getBounds()); // Automatically frames your subdivision shapes on complete
+        })
+        .on('error', function(e) {
+          console.error("KML Parse Failure: Map works, but 'subdivisions.kml' has structural formatting problems or is missing.", e);
+        })
+        .addTo(map);
+    } catch(err) {
+      console.error("Omnivore Initialization Error:", err);
+    }
+
+    let currentMarker = null;
+    const coordTypeSelect = document.getElementById('coord-type');
+    const utmFields = document.getElementById('utm-fields');
+    const labelX = document.getElementById('label-x');
+    const labelY = document.getElementById('label-y');
+    const inputX = document.getElementById('input-x');
+    const inputY = document.getElementById('input-y');
+
+    coordTypeSelect.addEventListener('change', function() {
+      if (this.value === 'utm') {
+        utmFields.style.display = 'block';
+        labelX.innerText = "Easting (6 digits, e.g., 334000)";
+        labelY.innerText = "Northing (7 digits, e.g., 6251000)";
+        inputX.placeholder = "334000";
+        inputY.placeholder = "6251000";
+      } else {
+        utmFields.style.display = 'none';
+        labelX.innerText = "Latitude (e.g., -33.8688)";
+        labelY.innerText = "Longitude (e.g., 151.2093)";
+        inputX.placeholder = "-33.8688";
+        inputY.placeholder = "151.2093";
+      }
+    });
+
+    document.getElementById('locate-btn').addEventListener('click', function() {
+      const errorDiv = document.getElementById('error-msg');
+      errorDiv.style.display = 'none';
+
+      const val1 = parseFloat(inputX.value.trim());
+      const val2 = parseFloat(inputY.value.trim());
+
+      if (isNaN(val1) || isNaN(val2)) {
+        showError("Please enter valid numerical coordinate values.");
         return;
       }
 
-      // Build Leaflet Map Canvas Grid Base - Centers directly over Australia
-      const map = L.map('map').setView([-27.0, 133.0], 4);
+      let targetLat, targetLng;
 
-      // Load core base atlas tiles instantly
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
+      if (coordTypeSelect.value === 'utm') {
+        const zone = document.getElementById('utm-zone').value;
+        const utmProj = `+proj=utm +zone=${zone} +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
+        const wgs84Proj = "+proj=longlat +datum=WGS84 +no_defs";
 
-      // Import your custom Google Subdivisions dataset safely 
-      let customLayer;
-      try {
-        customLayer = omnivore.kml('subdivisions.kml')
-          .on('ready', function() {
-            console.log("KML data layer processed successfully!");
-            map.fitBounds(customLayer.getBounds()); // Automatically frames your subdivision shapes on complete
-          })
-          .on('error', function(e) {
-            console.error("KML Parse Failure: Map works, but 'subdivisions.kml' has structural formatting problems or is missing.", e);
-          })
-          .addTo(map);
-      } catch(err) {
-        console.error("Omnivore Initialization Error:", err);
-      }
+        try {
+          const converted = proj4(utmProj, wgs84Proj, [val1, val2]);
+          targetLng = converted[0];
+          targetLat = converted[1];
 
-      let currentMarker = null;
-      const coordTypeSelect = document.getElementById('coord-type');
-      const utmFields = document.getElementById('utm-fields');
-      const labelX = document.getElementById('label-x');
-      const labelY = document.getElementById('label-y');
-      const inputX = document.getElementById('input-x');
-      const inputY = document.getElementById('input-y');
-
-      coordTypeSelect.addEventListener('change', function() {
-        if (this.value === 'utm') {
-          utmFields.style.display = 'block';
-          labelX.innerText = "Easting (6 digits, e.g., 334000)";
-          labelY.innerText = "Northing (7 digits, e.g., 6251000)";
-          inputX.placeholder = "334000";
-          inputY.placeholder = "6251000";
-        } else {
-          utmFields.style.display = 'none';
-          labelX.innerText = "Latitude (e.g., -33.8688)";
-          labelY.innerText = "Longitude (e.g., 151.2093)";
-          inputX.placeholder = "-33.8688";
-          inputY.placeholder = "151.2093";
-        }
-      });
-
-      document.getElementById('locate-btn').addEventListener('click', function() {
-        const errorDiv = document.getElementById('error-msg');
-        errorDiv.style.display = 'none';
-
-        const val1 = parseFloat(inputX.value.trim());
-        const val2 = parseFloat(inputY.value.trim());
-
-        if (isNaN(val1) || isNaN(val2)) {
-          showError("Please enter valid numerical coordinate values.");
-          return;
-        }
-
-        let targetLat, targetLng;
-
-        if (coordTypeSelect.value === 'utm') {
-          const zone = document.getElementById('utm-zone').value;
-          const utmProj = `+proj=utm +zone=${zone} +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
-          const wgs84Proj = "+proj=longlat +datum=WGS84 +no_defs";
-
-          try {
-            const converted = proj4(utmProj, wgs84Proj, [val1, val2]);
-            targetLng = converted;
-            targetLat = converted;
-
-            if (targetLat < -45 || targetLat > -10 || targetLng < 110 || targetLng > 155) {
-              showError("The converted UTM components fall outside the bounds of Australia.");
-              return;
-            }
-          } catch (err) {
-            showError("Projection failed. Verify your Easting and Northing values.");
+          if (targetLat < -45 || targetLat > -10 || targetLng < 110 || targetLng > 155) {
+            showError("The converted UTM components fall outside the bounds of Australia.");
             return;
           }
-        } else {
-          targetLat = val1;
-          targetLng = val2;
+        } catch (err) {
+          showError("Projection failed. Verify your Easting and Northing values.");
+          return;
         }
-
-        if (currentMarker) map.removeLayer(currentMarker);
-
-        currentMarker = L.marker([targetLat, targetLng]).addTo(map)
-          .bindPopup(`<b>Target Field Coordinates</b><br>Lat: ${targetLat.toFixed(5)}<br>Lng: ${targetLng.toFixed(5)}`)
-          .openPopup();
-
-        map.setView([targetLat, targetLng], 14);
-      });
-
-      function showError(text) {
-        const errorDiv = document.getElementById('error-msg');
-        errorDiv.innerText = text;
-        errorDiv.style.display = 'block';
+      } else {
+        targetLat = val1;
+        targetLng = val2;
       }
-    };
+
+      if (currentMarker) map.removeLayer(currentMarker);
+
+      currentMarker = L.marker([targetLat, targetLng]).addTo(map)
+        .bindPopup(`<b>Target Field Coordinates</b><br>Lat: ${targetLat.toFixed(5)}<br>Lng: ${targetLng.toFixed(5)}`)
+        .openPopup();
+
+      map.setView([targetLat, targetLng], 14);
+    });
+
+    function showError(text) {
+      const errorDiv = document.getElementById('error-msg');
+      errorDiv.innerText = text;
+      errorDiv.style.display = 'block';
+    }
   </script>
 </body>
 </html>
