@@ -5,78 +5,137 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Australian Botanical Subdivisions - Coordinate Search</title>
   
-  <!-- Bulletproof Official Core Leaflet CSS CDN -->
-  <link rel="stylesheet" href="https://unpkg.com" />
+  <!-- Leaflet CSS & JS for OpenStreetMap -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
   
-  <!-- Bulletproof Official Core Leaflet JavaScript CDN -->
-  <script src="https://unpkg.com"></script>
+  <!-- Proj4js Library for coordinate transformations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.min.js"></script>
 
-  <!-- Projection and KML parsing helpers -->
-  <script src="https://cloudflare.com"></script>
-  <script src="https://cloudflare.com"></script>
+  <!-- Leaflet Omnivore Plugin to read KML layers -->
+  <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
 
   <style>
-    /* Reset layout framework parameters */
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      height: 100% !important;
-      width: 100% !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      overflow: hidden;
+      font-family: -apple-system, sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #f4f6f4;
     }
-    body { 
-      display: flex; 
-      background-color: #f4f6f4; 
+
+    #sidebar {
+      width: 320px;
+      background: #ffffff;
+      padding: 25px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
     }
-    #sidebar { 
-      width: 320px; 
-      min-width: 320px;
-      max-width: 320px;
-      background: #ffffff; 
-      padding: 25px; 
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1); 
-      display: flex; 
-      flex-direction: column; 
-      z-index: 1000; 
+
+    h2 {
+      color: #2c4c38;
+      margin-top: 0;
+      font-size: 1.4rem;
+      border-bottom: 2px solid #e2ece6;
+      padding-bottom: 10px;
+    }
+
+    .description {
+      font-size: 0.85rem;
+      color: #556b2f;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       box-sizing: border-box;
-      height: 100vh !important;
+      font-size: 0.9rem;
     }
-    h2 { color: #2c4c38; margin-top: 0; font-size: 1.4rem; border-bottom: 2px solid #e2ece6; padding-bottom: 10px; }
-    .description { font-size: 0.85rem; color: #556b2f; margin-bottom: 20px; line-height: 1.4; }
-    .input-group { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.85rem; color: #333; }
-    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem; }
-    button { width: 100%; padding: 12px; background: #2c4c38; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
-    button:hover { background: #1e3527; }
-    #error-msg { color: #b22222; font-size: 0.85rem; margin-top: 10px; display: none; font-weight: 500; }
-    
-    /* DEFINITIVE FIX: Removes variable flex mechanics. Forces a physical absolute canvas viewport */
-    #map { 
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      left: 320px; /* Aligns map container flawlessly to the edge of the sidebar */
-      height: 100vh !important;
-      background: #d4dadc; /* Visual test canvas indicator */
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2c4c38;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
-    
-    @media (max-width: 768px) { 
-      body { flex-direction: column-reverse; } 
-      #sidebar { width: 100%; max-width: 100%; height: auto !important; position: relative; } 
-      #map { left: 0; top: 0; height: 60vh !important; position: relative; } 
+
+    button:hover {
+      background: #1e3527;
+    }
+
+    #error-msg {
+      color: #b22222;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      display: none;
+      font-weight: 500;
+    }
+
+    #map {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 100vh;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column-reverse;
+      }
+
+      #sidebar {
+        width: 100%;
+      }
+
+      #map {
+        height: 60vh;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <div id="sidebar">
+
     <h2>Botanical Subdivisions Lookup</h2>
-    <div class="description">Search coordinates to plot botanical field data across Australia. Natively supports standard Lat/Lng or Australian UTM Grid coordinates.</div>
+
+    <div class="description">
+      Search coordinates to plot botanical field data across Australia.
+      Natively supports standard Lat/Lng or Australian UTM Grid coordinates.
+    </div>
 
     <div class="input-group">
       <label for="coord-type">Coordinate Input Type</label>
+
       <select id="coord-type">
         <option value="latlng">Latitude / Longitude (Decimal)</option>
         <option value="utm">UTM (Easting / Northing)</option>
@@ -84,8 +143,11 @@
     </div>
 
     <div id="utm-fields" style="display: none;">
+
       <div class="input-group">
+
         <label for="utm-zone">Australian UTM Zone</label>
+
         <select id="utm-zone">
           <option value="49">Zone 49 (WA West)</option>
           <option value="50">Zone 50 (WA Central)</option>
@@ -96,132 +158,262 @@
           <option value="55">Zone 55 (QLD Central / NSW Central / VIC / TAS)</option>
           <option value="56">Zone 56 (QLD East / NSW East)</option>
         </select>
+
       </div>
     </div>
 
     <div class="input-group">
-      <label id="label-x" for="input-x">Latitude (e.g., -33.8688)</label>
-      <input type="text" id="input-x" placeholder="-33.8688">
+      <label id="label-x" for="input-x">
+        Latitude (e.g., -33.8688)
+      </label>
+
+      <input type="text"
+             id="input-x"
+             placeholder="-33.8688">
     </div>
 
     <div class="input-group">
-      <label id="label-y" for="input-y">Longitude (e.g., 151.2093)</label>
-      <input type="text" id="input-y" placeholder="151.2093">
+      <label id="label-y" for="input-y">
+        Longitude (e.g., 151.2093)
+      </label>
+
+      <input type="text"
+             id="input-y"
+             placeholder="151.2093">
     </div>
 
-    <button id="locate-btn">Locate Subdivision Spot</button>
+    <button id="locate-btn">
+      Locate Subdivision Spot
+    </button>
+
     <div id="error-msg"></div>
+
   </div>
 
   <div id="map"></div>
 
   <script>
-    // Build Leaflet Map Canvas Grid Base - Centers directly over Australia
+
     const map = L.map('map').setView([-27.0, 133.0], 4);
 
-    // Highly secure cloud server basemap tiles
-    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
-      attribution: '©OpenStreetMap, ©CartoDB',
-      subdomains: 'abcd',
-      maxZoom: 20
-    }).addTo(map);
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }
+    ).addTo(map);
 
-    // Import your custom Google Subdivisions dataset safely 
-    let customLayer;
-    try {
-      customLayer = omnivore.kml('subdivisions.kml')
-        .on('ready', function() {
-          console.log("KML data layer processed successfully!");
-          map.fitBounds(customLayer.getBounds()); 
-        })
-        .on('error', function(e) {
-          console.error("KML Parse Failure: Map works, but subdivisions data layer has errors or is missing.", e);
-        })
-        .addTo(map);
-    } catch(err) {
-      console.error("Omnivore Initialization Error:", err);
-    }
+
+    // Load botanical subdivisions KML
+
+    const customLayer = omnivore.kml('subdivisions.kml')
+
+      .on('ready', function() {
+
+        map.fitBounds(customLayer.getBounds());
+
+      })
+
+      .addTo(map);
+
 
     let currentMarker = null;
-    const coordTypeSelect = document.getElementById('coord-type');
-    const utmFields = document.getElementById('utm-fields');
-    const labelX = document.getElementById('label-x');
-    const labelY = document.getElementById('label-y');
-    const inputX = document.getElementById('input-x');
-    const inputY = document.getElementById('input-y');
 
-    // FIXED LOGIC LOOP: Correctly updates form elements dynamically on selection
-    coordTypeSelect.addEventListener('change', function() {
-      if (this.value === 'utm') {
-        utmFields.style.display = 'block';
-        labelX.innerText = "Easting (6 digits, e.g., 294100)";
-        labelY.innerText = "Northing (7 digits, e.g., 6234900)";
-        inputX.value = ""; 
-        inputY.value = "";
-        inputX.placeholder = "294100";
-        inputY.placeholder = "6234900";
-      } else {
-        utmFields.style.display = 'none';
-        labelX.innerText = "Latitude (e.g., -33.8688)";
-        labelY.innerText = "Longitude (e.g., 151.2093)";
-        inputX.value = "";
-        inputY.value = "";
-        inputX.placeholder = "-33.8688";
-        inputY.placeholder = "151.2093";
+    const coordTypeSelect =
+      document.getElementById('coord-type');
+
+    const utmFields =
+      document.getElementById('utm-fields');
+
+    const labelX =
+      document.getElementById('label-x');
+
+    const labelY =
+      document.getElementById('label-y');
+
+    const inputX =
+      document.getElementById('input-x');
+
+    const inputY =
+      document.getElementById('input-y');
+
+
+    coordTypeSelect.addEventListener(
+      'change',
+      function() {
+
+        if (this.value === 'utm') {
+
+          utmFields.style.display = 'block';
+
+          labelX.innerText =
+            "Easting (6 digits, e.g., 334000)";
+
+          labelY.innerText =
+            "Northing (7 digits, e.g., 6251000)";
+
+          inputX.placeholder = "334000";
+
+          inputY.placeholder = "6251000";
+
+        } else {
+
+          utmFields.style.display = 'none';
+
+          labelX.innerText =
+            "Latitude (e.g., -33.8688)";
+
+          labelY.innerText =
+            "Longitude (e.g., 151.2093)";
+
+          inputX.placeholder = "-33.8688";
+
+          inputY.placeholder = "151.2093";
+
+        }
+
       }
-    });
+    );
 
-    document.getElementById('locate-btn').addEventListener('click', function() {
-      const errorDiv = document.getElementById('error-msg');
-      errorDiv.style.display = 'none';
 
-      const val1 = parseFloat(inputX.value.trim());
-      const val2 = parseFloat(inputY.value.trim());
+    document
+      .getElementById('locate-btn')
+      .addEventListener(
+        'click',
+        function() {
 
-      if (isNaN(val1) || isNaN(val2)) {
-        showError("Please enter valid numerical coordinate values.");
-        return;
-      }
+          const errorDiv =
+            document.getElementById('error-msg');
 
-      let targetLat, targetLng;
+          errorDiv.style.display = 'none';
 
-      if (coordTypeSelect.value === 'utm') {
-        const zone = document.getElementById('utm-zone').value;
-        const utmProj = `+proj=utm +zone=${zone} +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
-        const wgs84Proj = "+proj=longlat +datum=WGS84 +no_defs";
 
-        try {
-          const converted = proj4(utmProj, wgs84Proj, [val1, val2]);
-          targetLng = converted;
-          targetLat = converted;
+          const val1 =
+            parseFloat(inputX.value.trim());
 
-          if (targetLat < -45 || targetLat > -10 || targetLng < 110 || targetLng > 155) {
-            showError("The converted UTM components fall outside the bounds of Australia. Check your zone settings.");
+          const val2 =
+            parseFloat(inputY.value.trim());
+
+
+          if (isNaN(val1) || isNaN(val2)) {
+
+            showError(
+              "Please enter valid numerical coordinate values."
+            );
+
             return;
           }
-        } catch (err) {
-          showError("Projection failed. Verify your Easting and Northing values.");
-          return;
+
+
+          let targetLat;
+          let targetLng;
+
+
+          if (coordTypeSelect.value === 'utm') {
+
+            const zone =
+              document.getElementById('utm-zone').value;
+
+
+            const utmProj =
+              `+proj=utm +zone=${zone} +south +ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
+
+
+            const wgs84Proj =
+              "+proj=longlat +datum=WGS84 +no_defs";
+
+
+            try {
+
+              const converted =
+                proj4(
+                  utmProj,
+                  wgs84Proj,
+                  [val1, val2]
+                );
+
+
+              targetLng = converted[0];
+
+              targetLat = converted[1];
+
+
+              if (
+                targetLat < -45 ||
+                targetLat > -10 ||
+                targetLng < 110 ||
+                targetLng > 155
+              ) {
+
+                showError(
+                  "The converted UTM components fall outside the bounds of Australia."
+                );
+
+                return;
+              }
+
+
+            } catch (err) {
+
+              showError(
+                "Projection failed. Verify your Easting and Northing values."
+              );
+
+              return;
+            }
+
+
+          } else {
+
+            targetLat = val1;
+
+            targetLng = val2;
+
+          }
+
+
+          if (currentMarker) {
+
+            map.removeLayer(currentMarker);
+
+          }
+
+
+          currentMarker =
+            L.marker(
+              [targetLat, targetLng]
+            )
+            .addTo(map)
+            .bindPopup(
+              `<b>Target Field Coordinates</b><br>
+               Lat: ${targetLat.toFixed(5)}<br>
+               Lng: ${targetLng.toFixed(5)}`
+            )
+            .openPopup();
+
+
+          map.setView(
+            [targetLat, targetLng],
+            14
+          );
+
         }
-      } else {
-        targetLat = val1;
-        targetLng = val2;
-      }
+      );
 
-      if (currentMarker) map.removeLayer(currentMarker);
-
-      currentMarker = L.marker([targetLat, targetLng]).addTo(map)
-        .bindPopup(`<b>Target Coordinates</b><br>Lat: ${targetLat.toFixed(5)}<br>Lng: ${targetLng.toFixed(5)}`)
-        .openPopup();
-
-      map.setView([targetLat, targetLng], 14);
-    });
 
     function showError(text) {
-      const errorDiv = document.getElementById('error-msg');
+
+      const errorDiv =
+        document.getElementById('error-msg');
+
       errorDiv.innerText = text;
+
       errorDiv.style.display = 'block';
+
     }
+
   </script>
+
 </body>
 </html>
