@@ -53,7 +53,7 @@
       flex: 1;
       height: 100vh !important; 
       width: 100%;
-      background: #e5e3df; 
+      background: #d4dadc; /* Base color match */
     }
     
     @media (max-width: 768px) { 
@@ -113,10 +113,11 @@
     // Build Leaflet Map Canvas Grid Base - Centers directly over Australia
     const map = L.map('map').setView([-27.0, 133.0], 4);
 
-    // Load base atlas tiles instantly
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
+    // FIXED: CARTO CDN - Ultra secure HTTPS base map tiles that bypass browser network filters
+    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png', {
+      attribution: '©OpenStreetMap, ©CartoDB',
+      subdomains: 'abcd',
+      maxZoom: 20
     }).addTo(map);
 
     // Import your custom Google Subdivisions dataset safely 
@@ -180,8 +181,8 @@
 
         try {
           const converted = proj4(utmProj, wgs84Proj, [val1, val2]);
-          targetLng = converted[0];
-          targetLat = converted[1];
+          targetLng = converted;
+          targetLat = converted;
 
           if (targetLat < -45 || targetLat > -10 || targetLng < 110 || targetLng > 155) {
             showError("The converted UTM components fall outside the bounds of Australia.");
