@@ -18,7 +18,7 @@
   <!-- Leaflet JS -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9coqIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin="">
   </script>
 
@@ -162,92 +162,6 @@
       width: 55px !important;
       flex: none !important;
     }
-
-
-    /* ==========================================
-       DATUM TOGGLE
-       ========================================== */
-
-    .datum-toggle-box {
-      margin-top: 12px;
-      padding: 10px;
-      border-top: 1px solid #dfe4e1;
-    }
-
-    .datum-toggle-title {
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: #405247;
-      margin-bottom: 7px;
-    }
-
-    .datum-toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 0.76rem;
-      font-weight: 600;
-    }
-
-    .datum-switch {
-      position: relative;
-      display: inline-block;
-      width: 46px;
-      height: 24px;
-      flex: 0 0 46px;
-    }
-
-    .datum-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .datum-slider {
-      position: absolute;
-      cursor: pointer;
-      inset: 0;
-      background: #55735f;
-      border-radius: 24px;
-      transition: 0.2s;
-    }
-
-    .datum-slider::before {
-      content: "";
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      left: 3px;
-      bottom: 3px;
-      background: white;
-      border-radius: 50%;
-      transition: 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
-    }
-
-    #datum-toggle:checked + .datum-slider {
-      background: #8a6544;
-    }
-
-    #datum-toggle:checked + .datum-slider::before {
-      transform: translateX(22px);
-    }
-
-    .datum-active {
-      color: #2c4c38;
-      font-weight: 700;
-    }
-
-    .comparison-row {
-      margin-top: 8px;
-      padding: 8px;
-      background: #eef3ef;
-      border-radius: 4px;
-      font-size: 0.74rem;
-      line-height: 1.4;
-    }
-
 
     button {
       width: 100%;
@@ -396,6 +310,10 @@
 <body>
 
 
+  <!-- ==========================================
+       SIDEBAR
+       ========================================== -->
+
   <div id="sidebar">
 
     <h2>Botanical Subdivisions Lookup</h2>
@@ -405,6 +323,10 @@
       coordinate formats, then plot the location on the botanical subdivisions map.
     </div>
 
+
+    <!-- ==========================================
+         INPUT COORDINATES
+         ========================================== -->
 
     <div class="coord-box">
 
@@ -430,12 +352,16 @@
 
       <label class="format-choice">
         <input type="radio" name="coord-format" value="utm">
-        Grid Reference – MGA94 / AMG66
+        Grid Reference – MGA94 / UTM
       </label>
 
 
       <div class="coordinate-fields">
 
+
+        <!-- ======================================
+             DECIMAL DEGREES
+             ====================================== -->
 
         <div id="fields-dd" class="field-section active">
 
@@ -459,6 +385,10 @@
 
         </div>
 
+
+        <!-- ======================================
+             DMM
+             ====================================== -->
 
         <div id="fields-dmm" class="field-section">
 
@@ -527,6 +457,10 @@
 
         </div>
 
+
+        <!-- ======================================
+             DMS
+             ====================================== -->
 
         <div id="fields-dms" class="field-section">
 
@@ -614,6 +548,10 @@
         </div>
 
 
+        <!-- ======================================
+             MGA94 / UTM
+             ====================================== -->
+
         <div id="fields-utm" class="field-section">
 
           <div class="coord-row">
@@ -659,28 +597,6 @@
       </div>
 
 
-      <div class="datum-toggle-box">
-        <div class="datum-toggle-title">Input Datum / Projection</div>
-
-        <div class="datum-toggle-row">
-
-          <span id="gda-label" class="datum-active">
-            GDA94 / MGA94
-          </span>
-
-          <label class="datum-switch" title="Switch input datum">
-            <input type="checkbox" id="datum-toggle">
-            <span class="datum-slider"></span>
-          </label>
-
-          <span id="agd-label">
-            AGD66 / AMG66
-          </span>
-
-        </div>
-      </div>
-
-
       <button id="convert-btn">
         Convert Input Coordinates
       </button>
@@ -691,6 +607,10 @@
     </div>
 
 
+
+    <!-- ==========================================
+         OUTPUT COORDINATES
+         ========================================== -->
 
     <div
       class="coord-box"
@@ -758,56 +678,6 @@
       </div>
 
 
-      <div class="result-row">
-        <span class="result-label">
-          Lat/Long (AGD66) – DD
-        </span>
-        <span
-          class="result-value"
-          id="result-agd-dd"
-        ></span>
-      </div>
-
-
-      <div class="result-row">
-        <span class="result-label">
-          Lat/Long (AGD66) – DMM
-        </span>
-        <span
-          class="result-value"
-          id="result-agd-dmm"
-        ></span>
-      </div>
-
-
-      <div class="result-row">
-        <span class="result-label">
-          Lat/Long (AGD66) – DMS
-        </span>
-        <span
-          class="result-value"
-          id="result-agd-dms"
-        ></span>
-      </div>
-
-
-      <div class="result-row">
-        <span class="result-label">
-          Grid Reference (AMG66)
-        </span>
-        <span
-          class="result-value"
-          id="result-amg"
-        ></span>
-      </div>
-
-
-      <div
-        class="comparison-row"
-        id="datum-comparison"
-      ></div>
-
-
       <button
         id="plot-btn"
         disabled
@@ -817,9 +687,8 @@
 
 
       <div class="datum-note">
-        The switch tells the tool which datum your input coordinates use.
-        The results show both GDA94/MGA94 and AGD66/AMG66 equivalents.
-        The map marker is always plotted at the transformed modern position.
+        Geographic coordinates are treated as GDA94 for this tool.
+        MGA94 grid coordinates use Australian UTM zones 49–56.
       </div>
 
     </div>
@@ -827,6 +696,10 @@
   </div>
 
 
+
+  <!-- ==========================================
+       MAP
+       ========================================== -->
 
   <div id="map"></div>
 
@@ -915,6 +788,10 @@
 
 
 
+        /* --------------------------------------
+           Read every KML feature
+           -------------------------------------- */
+
         subdivisions.eachLayer(
 
           function (layer) {
@@ -946,6 +823,10 @@
 
 
 
+            /* ----------------------------------
+               Add clickable name popup
+               ---------------------------------- */
+
             if (
 
               subdivisionName &&
@@ -969,6 +850,10 @@
             }
 
 
+
+            /* ----------------------------------
+               Create permanent map label
+               ---------------------------------- */
 
             if (
 
@@ -1100,112 +985,13 @@
 
 
     /* =====================================================
-       COORDINATE CONVERTER
+       NEW COORDINATE CONVERTER
        ===================================================== */
 
     let currentMarker = null;
 
     let convertedLat = null;
     let convertedLon = null;
-
-    let agdLat = null;
-    let agdLon = null;
-
-
-
-    /*
-      GDA94 / MGA94 and AGD66 / AMG66 definitions.
-
-      AGD66 uses the Australian National Spheroid and
-      a commonly used national seven-parameter transformation.
-    */
-
-    const GDA94_GEOG =
-      "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs";
-
-
-    const AGD66_GEOG =
-      "+proj=longlat +a=6378160 +rf=298.25 " +
-      "+towgs84=-117.808,-51.536,137.784,-0.303,-0.446,-0.234,-0.29 +no_defs";
-
-
-
-    function mga94Projection(zone) {
-
-      return (
-        "+proj=utm +zone=" +
-        zone +
-        " +south +ellps=GRS80 " +
-        "+towgs84=0,0,0,0,0,0,0 " +
-        "+units=m +no_defs"
-      );
-
-    }
-
-
-
-    function amg66Projection(zone) {
-
-      return (
-        "+proj=utm +zone=" +
-        zone +
-        " +south +a=6378160 +rf=298.25 " +
-        "+towgs84=-117.808,-51.536,137.784,-0.303,-0.446,-0.234,-0.29 " +
-        "+units=m +no_defs"
-      );
-
-    }
-
-
-
-    function inputIsAGD66() {
-
-      return document
-        .getElementById(
-          "datum-toggle"
-        )
-        .checked;
-
-    }
-
-
-
-    document
-      .getElementById(
-        "datum-toggle"
-      )
-      .addEventListener(
-
-        "change",
-
-        function () {
-
-
-          document
-            .getElementById(
-              "gda-label"
-            )
-            .classList.toggle(
-              "datum-active",
-              !this.checked
-            );
-
-
-          document
-            .getElementById(
-              "agd-label"
-            )
-            .classList.toggle(
-              "datum-active",
-              this.checked
-            );
-
-
-          hideError();
-
-        }
-
-      );
 
 
 
@@ -1294,12 +1080,8 @@
             ).value;
 
 
-          const useAGD66 =
-            inputIsAGD66();
-
-
-          let inputLat;
-          let inputLon;
+          let lat;
+          let lon;
 
 
 
@@ -1313,7 +1095,7 @@
             if (selected === "dd") {
 
 
-              inputLat =
+              lat =
                 parseFloat(
                   document
                     .getElementById(
@@ -1323,7 +1105,7 @@
                 );
 
 
-              inputLon =
+              lon =
                 parseFloat(
                   document
                     .getElementById(
@@ -1334,8 +1116,8 @@
 
 
               if (
-                !Number.isFinite(inputLat) ||
-                !Number.isFinite(inputLon)
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lon)
               ) {
 
                 throw new Error(
@@ -1433,23 +1215,23 @@
               }
 
 
-              inputLat =
+              lat =
                 Math.abs(latDeg) +
                 (latMin / 60);
 
 
-              inputLon =
+              lon =
                 Math.abs(lonDeg) +
                 (lonMin / 60);
 
 
               if (latDir === "S") {
-                inputLat = -inputLat;
+                lat = -lat;
               }
 
 
               if (lonDir === "W") {
-                inputLon = -inputLon;
+                lon = -lon;
               }
 
 
@@ -1565,25 +1347,25 @@
               }
 
 
-              inputLat =
+              lat =
                 Math.abs(latDeg) +
                 (latMin / 60) +
                 (latSec / 3600);
 
 
-              inputLon =
+              lon =
                 Math.abs(lonDeg) +
                 (lonMin / 60) +
                 (lonSec / 3600);
 
 
               if (latDir === "S") {
-                inputLat = -inputLat;
+                lat = -lat;
               }
 
 
               if (lonDir === "W") {
-                inputLon = -inputLon;
+                lon = -lon;
               }
 
 
@@ -1592,7 +1374,7 @@
 
 
             /* ====================================
-               MGA94 / AMG66 GRID INPUT
+               MGA94 / UTM INPUT
                ==================================== */
 
             else if (
@@ -1633,32 +1415,33 @@
               ) {
 
                 throw new Error(
-
-                  useAGD66
-
-                    ? "Please enter a valid AMG66 Easting and Northing."
-
-                    : "Please enter a valid MGA94 Easting and Northing."
-
+                  "Please enter a valid MGA94 Easting and Northing."
                 );
 
               }
 
 
+              const utmProjection =
+                "+proj=utm " +
+                "+zone=" + zone + " " +
+                "+south " +
+                "+ellps=GRS80 " +
+                "+units=m " +
+                "+no_defs";
+
+
+              const geographicProjection =
+                "+proj=longlat " +
+                "+ellps=GRS80 " +
+                "+no_defs";
+
+
               const converted =
                 proj4(
 
-                  useAGD66
+                  utmProjection,
 
-                    ? amg66Projection(zone)
-
-                    : mga94Projection(zone),
-
-                  useAGD66
-
-                    ? AGD66_GEOG
-
-                    : GDA94_GEOG,
+                  geographicProjection,
 
                   [
                     east,
@@ -1668,11 +1451,11 @@
                 );
 
 
-              inputLon =
+              lon =
                 converted[0];
 
 
-              inputLat =
+              lat =
                 converted[1];
 
 
@@ -1686,110 +1469,33 @@
 
             if (
 
-              inputLat < -45 ||
-              inputLat > -9 ||
-              inputLon < 110 ||
-              inputLon > 155
+              lat < -45 ||
+              lat > -9 ||
+              lon < 110 ||
+              lon > 155
 
             ) {
 
               throw new Error(
-                "The coordinates appear to fall outside Australia. Please check the values, directions, datum and grid zone."
+                "The coordinates appear to fall outside Australia. Please check the values, directions and MGA zone."
               );
 
             }
 
 
 
-            /* ====================================
-               BUILD BOTH DATUM VERSIONS
-               ==================================== */
-
-            if (useAGD66) {
+            convertedLat =
+              lat;
 
 
-              agdLat =
-                inputLat;
-
-
-              agdLon =
-                inputLon;
-
-
-              const gda =
-                proj4(
-
-                  AGD66_GEOG,
-
-                  GDA94_GEOG,
-
-                  [
-                    agdLon,
-                    agdLat
-                  ]
-
-                );
-
-
-              convertedLon =
-                gda[0];
-
-
-              convertedLat =
-                gda[1];
-
-
-            }
-
-
-            else {
-
-
-              convertedLat =
-                inputLat;
-
-
-              convertedLon =
-                inputLon;
-
-
-              const agd =
-                proj4(
-
-                  GDA94_GEOG,
-
-                  AGD66_GEOG,
-
-                  [
-                    convertedLon,
-                    convertedLat
-                  ]
-
-                );
-
-
-              agdLon =
-                agd[0];
-
-
-              agdLat =
-                agd[1];
-
-
-            }
+            convertedLon =
+              lon;
 
 
 
             displayAllCoordinates(
-
-              convertedLat,
-
-              convertedLon,
-
-              agdLat,
-
-              agdLon
-
+              lat,
+              lon
             );
 
 
@@ -1804,14 +1510,6 @@
 
 
             convertedLon =
-              null;
-
-
-            agdLat =
-              null;
-
-
-            agdLon =
               null;
 
 
@@ -1843,33 +1541,49 @@
 
     function displayAllCoordinates(
       lat,
-      lon,
-      oldLat,
-      oldLon
+      lon
     ) {
 
 
       /* ==========================================
-         GDA94 DD
+         DD
          ========================================== */
+
+      const ddText =
+
+        "Lat. " +
+        lat.toFixed(6) +
+        "°   Lon. " +
+        lon.toFixed(6) +
+        "°";
+
 
       document
         .getElementById(
           "result-dd"
         )
         .textContent =
-
-          "Lat. " +
-          lat.toFixed(6) +
-          "°   Lon. " +
-          lon.toFixed(6) +
-          "°";
+          ddText;
 
 
 
       /* ==========================================
-         GDA94 DMM
+         DMM
          ========================================== */
+
+      const latDMM =
+        decimalToDMM(
+          lat,
+          true
+        );
+
+
+      const lonDMM =
+        decimalToDMM(
+          lon,
+          false
+        );
+
 
       document
         .getElementById(
@@ -1878,22 +1592,30 @@
         .textContent =
 
           "Lat. " +
-          decimalToDMM(
-            lat,
-            true
-          ) +
+          latDMM +
 
           "   Lon. " +
-          decimalToDMM(
-            lon,
-            false
-          );
+          lonDMM;
 
 
 
       /* ==========================================
-         GDA94 DMS
+         DMS
          ========================================== */
+
+      const latDMS =
+        decimalToDMS(
+          lat,
+          true
+        );
+
+
+      const lonDMS =
+        decimalToDMS(
+          lon,
+          false
+        );
+
 
       document
         .getElementById(
@@ -1902,21 +1624,15 @@
         .textContent =
 
           "Lat. " +
-          decimalToDMS(
-            lat,
-            true
-          ) +
+          latDMS +
 
           "   Lon. " +
-          decimalToDMS(
-            lon,
-            false
-          );
+          lonDMS;
 
 
 
       /* ==========================================
-         AUTOMATIC AUSTRALIAN UTM ZONE
+         AUTOMATIC MGA94 ZONE
          ========================================== */
 
       let zone =
@@ -1925,10 +1641,14 @@
         ) + 1;
 
 
+      /*
+        Australian mainland/Tasmanian zones
+        supported by this application.
+      */
+
       if (zone < 49) {
         zone = 49;
       }
-
 
       if (zone > 56) {
         zone = 56;
@@ -1936,24 +1656,45 @@
 
 
 
-      /* ==========================================
-         MGA94
-         ========================================== */
+      const geographicProjection =
+        "+proj=longlat " +
+        "+ellps=GRS80 " +
+        "+no_defs";
 
-      const mga =
+
+      const utmProjection =
+        "+proj=utm " +
+        "+zone=" + zone + " " +
+        "+south " +
+        "+ellps=GRS80 " +
+        "+units=m " +
+        "+no_defs";
+
+
+      const utm =
         proj4(
 
-          GDA94_GEOG,
+          geographicProjection,
 
-          mga94Projection(
-            zone
-          ),
+          utmProjection,
 
           [
             lon,
             lat
           ]
 
+        );
+
+
+      const east =
+        Math.round(
+          utm[0]
+        );
+
+
+      const north =
+        Math.round(
+          utm[1]
         );
 
 
@@ -1964,169 +1705,13 @@
         .textContent =
 
           "East " +
-          Math.round(
-            mga[0]
-          ) +
+          east +
 
           "   North " +
-          Math.round(
-            mga[1]
-          ) +
+          north +
 
           "   Zone " +
           zone;
-
-
-
-      /* ==========================================
-         AGD66 DD
-         ========================================== */
-
-      document
-        .getElementById(
-          "result-agd-dd"
-        )
-        .textContent =
-
-          "Lat. " +
-          oldLat.toFixed(6) +
-          "°   Lon. " +
-          oldLon.toFixed(6) +
-          "°";
-
-
-
-      /* ==========================================
-         AGD66 DMM
-         ========================================== */
-
-      document
-        .getElementById(
-          "result-agd-dmm"
-        )
-        .textContent =
-
-          "Lat. " +
-          decimalToDMM(
-            oldLat,
-            true
-          ) +
-
-          "   Lon. " +
-          decimalToDMM(
-            oldLon,
-            false
-          );
-
-
-
-      /* ==========================================
-         AGD66 DMS
-         ========================================== */
-
-      document
-        .getElementById(
-          "result-agd-dms"
-        )
-        .textContent =
-
-          "Lat. " +
-          decimalToDMS(
-            oldLat,
-            true
-          ) +
-
-          "   Lon. " +
-          decimalToDMS(
-            oldLon,
-            false
-          );
-
-
-
-      /* ==========================================
-         AMG66
-         ========================================== */
-
-      const amg =
-        proj4(
-
-          AGD66_GEOG,
-
-          amg66Projection(
-            zone
-          ),
-
-          [
-            oldLon,
-            oldLat
-          ]
-
-        );
-
-
-      document
-        .getElementById(
-          "result-amg"
-        )
-        .textContent =
-
-          "East " +
-          Math.round(
-            amg[0]
-          ) +
-
-          "   North " +
-          Math.round(
-            amg[1]
-          ) +
-
-          "   Zone " +
-          zone;
-
-
-
-      /* ==========================================
-         APPROXIMATE DATUM OFFSET
-         ========================================== */
-
-      const shift =
-        approximateDistanceMetres(
-
-          lat,
-          lon,
-
-          oldLat,
-          oldLon
-
-        );
-
-
-      document
-        .getElementById(
-          "datum-comparison"
-        )
-        .innerHTML =
-
-          "<strong>Input interpreted as " +
-
-          (
-            inputIsAGD66()
-
-              ? "AGD66 / AMG66"
-
-              : "GDA94 / MGA94"
-          ) +
-
-          ".</strong><br>" +
-
-          "The same numeric latitude/longitude values in the two datums are about " +
-
-          Math.round(
-            shift
-          ) +
-
-          " m apart at this location.";
 
 
 
@@ -2144,100 +1729,6 @@
         )
         .disabled =
           false;
-
-
-    }
-
-
-
-    /* =====================================================
-       APPROXIMATE DISTANCE
-       ===================================================== */
-
-    function approximateDistanceMetres(
-      lat1,
-      lon1,
-      lat2,
-      lon2
-    ) {
-
-
-      const radius =
-        6371000;
-
-
-      const rad =
-        Math.PI / 180;
-
-
-      const p1 =
-        lat1 * rad;
-
-
-      const p2 =
-        lat2 * rad;
-
-
-      const dp =
-        (
-          lat2 -
-          lat1
-        ) * rad;
-
-
-      const dl =
-        (
-          lon2 -
-          lon1
-        ) * rad;
-
-
-      const a =
-
-        Math.sin(
-          dp / 2
-        ) *
-
-        Math.sin(
-          dp / 2
-        ) +
-
-        Math.cos(
-          p1
-        ) *
-
-        Math.cos(
-          p2
-        ) *
-
-        Math.sin(
-          dl / 2
-        ) *
-
-        Math.sin(
-          dl / 2
-        );
-
-
-      return (
-
-        radius *
-
-        2 *
-
-        Math.atan2(
-
-          Math.sqrt(
-            a
-          ),
-
-          Math.sqrt(
-            1 - a
-          )
-
-        )
-
-      );
 
 
     }
@@ -2456,30 +1947,18 @@
 
               "<strong>Target Coordinates</strong><br>" +
 
-              "<strong>GDA94</strong><br>" +
-
               "Lat: " +
               convertedLat.toFixed(6) +
               "°<br>" +
 
               "Lon: " +
               convertedLon.toFixed(6) +
-              "°<br>" +
+              "°<br><br>" +
 
               dmmLat +
               "<br>" +
 
-              dmmLon +
-
-              "<br><br><strong>AGD66</strong><br>" +
-
-              "Lat: " +
-              agdLat.toFixed(6) +
-              "°<br>" +
-
-              "Lon: " +
-              agdLon.toFixed(6) +
-              "°"
+              dmmLon
 
             )
             .openPopup();
