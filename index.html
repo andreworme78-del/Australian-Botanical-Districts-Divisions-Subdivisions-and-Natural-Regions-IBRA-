@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -9,7 +8,6 @@
   <title>Australian Botanical Subdivisions - Coordinate Search</title>
 
   <!-- Leaflet CSS -->
-
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -18,7 +16,6 @@
   />
 
   <!-- Leaflet JS -->
-
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9coqIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -26,12 +23,11 @@
   </script>
 
   <!-- Proj4js for UTM conversion -->
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.min.js"></script>
 
   <!-- Leaflet Omnivore -->
-
   <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
+
 
   <style>
 
@@ -194,7 +190,9 @@
 
 </head>
 
+
 <body>
+
 
   <!-- ================================
        SIDEBAR
@@ -202,110 +200,110 @@
 
   <div id="sidebar">
 
-<h2>
-  Botanical Subdivisions Lookup
-</h2>
+    <h2>
+      Botanical Subdivisions Lookup
+    </h2>
 
-<div class="description">
-  Search coordinates to plot botanical field data across Australia.
-  Supports standard Latitude / Longitude or Australian UTM Grid coordinates.
-  Use the map layer control to switch subdivision outlines, colour and
-  labels on or off.
-</div>
-
-
-<div class="input-group">
-
-  <label for="coord-type">
-    Coordinate Input Type
-  </label>
-
-  <select id="coord-type">
-
-    <option value="latlng">
-      Latitude / Longitude (Decimal)
-    </option>
-
-    <option value="utm">
-      UTM (Easting / Northing)
-    </option>
-
-  </select>
-
-</div>
+    <div class="description">
+      Search coordinates to plot botanical field data across Australia.
+      Supports standard Latitude / Longitude or Australian UTM Grid coordinates.
+      Use the map layer control to switch subdivision outlines, colour and
+      labels on or off.
+    </div>
 
 
-<div
-  id="utm-fields"
-  style="display:none;"
->
+    <div class="input-group">
 
-  <div class="input-group">
+      <label for="coord-type">
+        Coordinate Input Type
+      </label>
 
-    <label for="utm-zone">
-      Australian UTM Zone
-    </label>
+      <select id="coord-type">
 
-    <select id="utm-zone">
+        <option value="latlng">
+          Latitude / Longitude (Decimal)
+        </option>
 
-      <option value="49">Zone 49 (WA West)</option>
-      <option value="50">Zone 50 (WA Central)</option>
-      <option value="51">Zone 51 (WA East / NT West)</option>
-      <option value="52">Zone 52 (NT Central / SA West)</option>
-      <option value="53">Zone 53 (NT East / SA Central)</option>
-      <option value="54">Zone 54 (QLD West / NSW West / SA East)</option>
-      <option value="55">Zone 55 (QLD Central / NSW Central / VIC / TAS)</option>
-      <option value="56">Zone 56 (QLD East / NSW East)</option>
+        <option value="utm">
+          UTM (Easting / Northing)
+        </option>
 
-    </select>
+      </select>
 
-  </div>
-
-</div>
+    </div>
 
 
-<div class="input-group">
+    <div
+      id="utm-fields"
+      style="display:none;"
+    >
 
-  <label
-    id="label-x"
-    for="input-x"
-  >
-    Latitude (e.g., -33.8688)
-  </label>
+      <div class="input-group">
 
-  <input
-    type="text"
-    id="input-x"
-    placeholder="-33.8688"
-  >
+        <label for="utm-zone">
+          Australian UTM Zone
+        </label>
 
-</div>
+        <select id="utm-zone">
 
+          <option value="49">Zone 49 (WA West)</option>
+          <option value="50">Zone 50 (WA Central)</option>
+          <option value="51">Zone 51 (WA East / NT West)</option>
+          <option value="52">Zone 52 (NT Central / SA West)</option>
+          <option value="53">Zone 53 (NT East / SA Central)</option>
+          <option value="54">Zone 54 (QLD West / NSW West / SA East)</option>
+          <option value="55">Zone 55 (QLD Central / NSW Central / VIC / TAS)</option>
+          <option value="56">Zone 56 (QLD East / NSW East)</option>
 
-<div class="input-group">
+        </select>
 
-  <label
-    id="label-y"
-    for="input-y"
-  >
-    Longitude (e.g., 151.2093)
-  </label>
+      </div>
 
-  <input
-    type="text"
-    id="input-y"
-    placeholder="151.2093"
-  >
-
-</div>
+    </div>
 
 
-<button id="locate-btn">
-  Locate Subdivision Spot
-</button>
+    <div class="input-group">
+
+      <label
+        id="label-x"
+        for="input-x"
+      >
+        Latitude (e.g., -33.8688)
+      </label>
+
+      <input
+        type="text"
+        id="input-x"
+        placeholder="-33.8688"
+      >
+
+    </div>
 
 
-<div id="error-msg"></div>
+    <div class="input-group">
+
+      <label
+        id="label-y"
+        for="input-y"
+      >
+        Longitude (e.g., 151.2093)
+      </label>
+
+      <input
+        type="text"
+        id="input-y"
+        placeholder="151.2093"
+      >
+
+    </div>
+
+
+    <button id="locate-btn">
+      Locate Subdivision Spot
+    </button>
+
+
+    <div id="error-msg"></div>
 
   </div>
 
@@ -1277,6 +1275,7 @@
 
 
   </script>
+
 
 </body>
 
