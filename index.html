@@ -46,9 +46,9 @@
     }
 
 
-    /* ================================
+    /* ==========================================
        SIDEBAR
-       ================================ */
+       ========================================== */
 
     #sidebar {
       width: 320px;
@@ -123,9 +123,9 @@
     }
 
 
-    /* ================================
+    /* ==========================================
        MAP
-       ================================ */
+       ========================================== */
 
     #map {
       flex: 1 1 auto;
@@ -134,9 +134,9 @@
     }
 
 
-    /* ================================
+    /* ==========================================
        SUBDIVISION LABELS
-       ================================ */
+       ========================================== */
 
     .subdivision-label {
       background: transparent;
@@ -162,9 +162,79 @@
     }
 
 
-    /* ================================
+    /* ==========================================
+       STATE FILTER CONTROL
+       ========================================== */
+
+    .state-filter-control {
+      background: rgba(255,255,255,0.96);
+      padding: 10px 12px;
+      border-radius: 5px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+      min-width: 185px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #222;
+    }
+
+    .state-filter-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2c4c38;
+      margin-bottom: 6px;
+    }
+
+    .state-filter-control label {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: normal;
+      margin: 4px 0;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .state-filter-control input[type="checkbox"] {
+      width: auto;
+      margin: 0 7px 0 0;
+      padding: 0;
+    }
+
+    .state-filter-buttons {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+      padding-top: 7px;
+      border-top: 1px solid #ddd;
+    }
+
+    .state-filter-buttons button {
+      width: auto;
+      flex: 1;
+      padding: 5px 7px;
+      font-size: 11px;
+      background: #eef2ef;
+      color: #2c4c38;
+      border: 1px solid #ccd6cf;
+    }
+
+    .state-filter-buttons button:hover {
+      background: #dde7e0;
+    }
+
+    .unavailable-state {
+      color: #999;
+    }
+
+    .unavailable-note {
+      font-size: 9px;
+      margin-left: 3px;
+      color: #999;
+    }
+
+
+    /* ==========================================
        MOBILE
-       ================================ */
+       ========================================== */
 
     @media (max-width: 768px) {
 
@@ -190,9 +260,9 @@
 <body>
 
 
-  <!-- ================================
+  <!-- ==========================================
        SIDEBAR
-       ================================ -->
+       ========================================== -->
 
   <div id="sidebar">
 
@@ -203,8 +273,8 @@
     <div class="description">
       Search coordinates to plot botanical field data across Australia.
       Supports standard Latitude / Longitude or Australian UTM Grid coordinates.
-      Use the map layer control to switch subdivision outlines, colour and
-      labels on or off.
+      Use the map controls to switch subdivision outlines, colour, labels and
+      individual states or territories on or off.
     </div>
 
 
@@ -229,7 +299,10 @@
     </div>
 
 
-    <div id="utm-fields" style="display:none;">
+    <div
+      id="utm-fields"
+      style="display:none;"
+    >
 
       <div class="input-group">
 
@@ -257,7 +330,10 @@
 
     <div class="input-group">
 
-      <label id="label-x" for="input-x">
+      <label
+        id="label-x"
+        for="input-x"
+      >
         Latitude (e.g., -33.8688)
       </label>
 
@@ -272,7 +348,10 @@
 
     <div class="input-group">
 
-      <label id="label-y" for="input-y">
+      <label
+        id="label-y"
+        for="input-y"
+      >
         Longitude (e.g., 151.2093)
       </label>
 
@@ -296,9 +375,9 @@
 
 
 
-  <!-- ================================
+  <!-- ==========================================
        MAP
-       ================================ -->
+       ========================================== -->
 
   <div id="map"></div>
 
@@ -315,6 +394,7 @@
       [-27.0, 133.0],
       4
     );
+
 
 
     /* =====================================================
@@ -335,24 +415,99 @@
 
 
     /* =====================================================
-       CREATE OUR THREE SUBDIVISION LAYERS
+       CREATE THE THREE WORKING SUBDIVISION LAYERS
        ===================================================== */
 
-    const subdivisionOutlines = L.layerGroup();
+    const subdivisionOutlines =
+      L.layerGroup();
 
-    const subdivisionColour = L.layerGroup();
+    const subdivisionColour =
+      L.layerGroup();
 
-    const subdivisionLabels = L.layerGroup();
+    const subdivisionLabels =
+      L.layerGroup();
 
 
 
     /* =====================================================
-       LOAD AND PARSE KML DIRECTLY
+       STATE SETTINGS
+       ===================================================== */
+
+    const stateEnabled = {
+
+      VIC: true,
+      NSW: true,
+      NT: true,
+      QLD: true,
+      SA: true,
+      WA: true
+
+    };
+
+
+
+    /*
+      Store the actual Leaflet layers belonging
+      to each state.
+
+      This lets us filter states WITHOUT changing
+      the working KML parsing system.
+    */
+
+    const stateLayers = {
+
+      VIC: {
+        outlines: [],
+        colours: [],
+        labels: []
+      },
+
+      NSW: {
+        outlines: [],
+        colours: [],
+        labels: []
+      },
+
+      NT: {
+        outlines: [],
+        colours: [],
+        labels: []
+      },
+
+      QLD: {
+        outlines: [],
+        colours: [],
+        labels: []
+      },
+
+      SA: {
+        outlines: [],
+        colours: [],
+        labels: []
+      },
+
+      WA: {
+        outlines: [],
+        colours: [],
+        labels: []
+      }
+
+    };
+
+
+
+    /* =====================================================
+       KML FILE
        ===================================================== */
 
     const kmlFile =
       "Australian Botanical Subdivisions.kml";
 
+
+
+    /* =====================================================
+       LOAD KML
+       ===================================================== */
 
     fetch(kmlFile)
 
@@ -370,14 +525,13 @@
 
       })
 
+
       .then(function(kmlText) {
 
 
         /*
-          Convert raw KML text into an XML document.
-
-          This lets us read the actual
-          <Placemark><name> directly.
+          This is the same working method as before:
+          parse the complete KML as XML.
         */
 
         const parser =
@@ -391,6 +545,7 @@
           );
 
 
+
         /*
           Find every Placemark.
         */
@@ -402,6 +557,7 @@
               "Placemark"
             )
           );
+
 
 
         /*
@@ -457,7 +613,27 @@
 
 
             /* ---------------------------------------------
-               CREATE MINI KML DOCUMENT FOR THIS PLACEMARK
+               DETERMINE STATE FROM PARENT KML FOLDER
+               --------------------------------------------- */
+
+            const stateCode =
+              getStateFromPlacemark(
+                placemark
+              );
+
+
+
+            /*
+              If for some reason a Placemark cannot be
+              associated with a state folder, we still
+              display it. It simply won't be affected
+              by the state checkboxes.
+            */
+
+
+
+            /* ---------------------------------------------
+               CREATE MINI KML DOCUMENT
                --------------------------------------------- */
 
             const miniKml =
@@ -601,6 +777,26 @@
 
 
 
+                  /*
+                    Store reference to this outline
+                    under its state.
+                  */
+
+                  if (
+                    stateCode &&
+                    stateLayers[stateCode]
+                  ) {
+
+                    stateLayers[
+                      stateCode
+                    ].outlines.push(
+                      outlineLayer
+                    );
+
+                  }
+
+
+
                   /* =======================================
                      COLOUR / HIGHLIGHT LAYER
                      ======================================= */
@@ -624,39 +820,39 @@
 
                           fillOpacity: 0.20
 
-                        }
+                        },
+
+                        interactive: false
 
                       }
 
                     );
 
 
-                  /*
-                    Do not let colour layer block
-                    clicks on outline underneath.
-                  */
-
-                  colourLayer.eachLayer(
-
-                    function(colourPart) {
-
-                      if (
-                        colourPart.options
-                      ) {
-
-                        colourPart.options
-                          .interactive = false;
-
-                      }
-
-                    }
-
-                  );
-
-
                   subdivisionColour.addLayer(
                     colourLayer
                   );
+
+
+
+                  /*
+                    Store reference to this colour
+                    under its state.
+                  */
+
+                  if (
+                    stateCode &&
+                    stateLayers[stateCode]
+                  ) {
+
+                    stateLayers[
+                      stateCode
+                    ].colours.push(
+                      colourLayer
+                    );
+
+                  }
+
 
                 }
 
@@ -718,6 +914,27 @@
                 labelMarker
               );
 
+
+
+              /*
+                Store reference to this label
+                under its state.
+              */
+
+              if (
+                stateCode &&
+                stateLayers[stateCode]
+              ) {
+
+                stateLayers[
+                  stateCode
+                ].labels.push(
+                  labelMarker
+                );
+
+              }
+
+
             }
 
 
@@ -774,7 +991,10 @@
 
 
     /* =====================================================
-       LAYER CONTROL
+       STANDARD LEAFLET LAYER CONTROL
+
+       This preserves the three controls from the
+       version that was already working.
        ===================================================== */
 
     const baseMaps = {
@@ -814,10 +1034,668 @@
 
 
     /* =====================================================
+       STATE FILTER CONTROL
+       ===================================================== */
+
+    const StateFilterControl =
+      L.Control.extend({
+
+        options: {
+          position: "bottomright"
+        },
+
+
+        onAdd: function(map) {
+
+
+          const container =
+            L.DomUtil.create(
+              "div",
+              "state-filter-control"
+            );
+
+
+          container.innerHTML = `
+
+            <div class="state-filter-title">
+              States & Territories
+            </div>
+
+
+            <label>
+              <input
+                type="checkbox"
+                class="state-checkbox"
+                data-state="VIC"
+                checked
+              >
+              Victoria
+            </label>
+
+
+            <label>
+              <input
+                type="checkbox"
+                class="state-checkbox"
+                data-state="NSW"
+                checked
+              >
+              New South Wales
+            </label>
+
+
+            <label>
+              <input
+                type="checkbox"
+                class="state-checkbox"
+                data-state="QLD"
+                checked
+              >
+              Queensland
+            </label>
+
+
+            <label>
+              <input
+                type="checkbox"
+                class="state-checkbox"
+                data-state="SA"
+                checked
+              >
+              South Australia
+            </label>
+
+
+            <label>
+              <input
+                type="checkbox"
+                class="state-checkbox"
+                data-state="WA"
+                checked
+              >
+              Western Australia
+            </label>
+
+
+            <label>
+              <input
+                type="checkbox"
+                class="state-checkbox"
+                data-state="NT"
+                checked
+              >
+              Northern Territory
+            </label>
+
+
+            <label class="unavailable-state">
+
+              <input
+                type="checkbox"
+                disabled
+              >
+
+              Tasmania
+
+              <span class="unavailable-note">
+                (not in KML)
+              </span>
+
+            </label>
+
+
+            <div class="state-filter-buttons">
+
+              <button
+                type="button"
+                id="states-all"
+              >
+                All
+              </button>
+
+              <button
+                type="button"
+                id="states-none"
+              >
+                None
+              </button>
+
+            </div>
+
+          `;
+
+
+
+          /*
+            Prevent interaction with this box from
+            dragging or zooming the map.
+          */
+
+          L.DomEvent.disableClickPropagation(
+            container
+          );
+
+
+          L.DomEvent.disableScrollPropagation(
+            container
+          );
+
+
+
+          /*
+            State checkbox events.
+          */
+
+          const checkboxes =
+            container.querySelectorAll(
+              ".state-checkbox"
+            );
+
+
+          checkboxes.forEach(
+
+            function(checkbox) {
+
+
+              checkbox.addEventListener(
+
+                "change",
+
+                function() {
+
+
+                  const state =
+                    this.dataset.state;
+
+
+                  stateEnabled[state] =
+                    this.checked;
+
+
+                  updateStateVisibility(
+                    state
+                  );
+
+
+                }
+
+              );
+
+
+            }
+
+          );
+
+
+
+          /* ---------------------------------------------
+             ALL BUTTON
+             --------------------------------------------- */
+
+          container
+            .querySelector(
+              "#states-all"
+            )
+            .addEventListener(
+
+              "click",
+
+              function() {
+
+
+                checkboxes.forEach(
+
+                  function(checkbox) {
+
+
+                    checkbox.checked =
+                      true;
+
+
+                    const state =
+                      checkbox.dataset.state;
+
+
+                    stateEnabled[state] =
+                      true;
+
+
+                    updateStateVisibility(
+                      state
+                    );
+
+
+                  }
+
+                );
+
+
+              }
+
+            );
+
+
+
+          /* ---------------------------------------------
+             NONE BUTTON
+             --------------------------------------------- */
+
+          container
+            .querySelector(
+              "#states-none"
+            )
+            .addEventListener(
+
+              "click",
+
+              function() {
+
+
+                checkboxes.forEach(
+
+                  function(checkbox) {
+
+
+                    checkbox.checked =
+                      false;
+
+
+                    const state =
+                      checkbox.dataset.state;
+
+
+                    stateEnabled[state] =
+                      false;
+
+
+                    updateStateVisibility(
+                      state
+                    );
+
+
+                  }
+
+                );
+
+
+              }
+
+            );
+
+
+          return container;
+
+        }
+
+      });
+
+
+    map.addControl(
+      new StateFilterControl()
+    );
+
+
+
+    /* =====================================================
+       STATE VISIBILITY
+
+       IMPORTANT:
+       We do NOT rebuild the map.
+
+       We only add/remove the already-created child
+       layers from the three working layer groups.
+       ===================================================== */
+
+    function updateStateVisibility(
+      state
+    ) {
+
+
+      if (!stateLayers[state]) {
+
+        return;
+
+      }
+
+
+      const visible =
+        stateEnabled[state];
+
+
+
+      /* ---------------------------------------------
+         OUTLINES
+         --------------------------------------------- */
+
+      stateLayers[
+        state
+      ].outlines.forEach(
+
+        function(layer) {
+
+
+          if (visible) {
+
+
+            if (
+              !subdivisionOutlines.hasLayer(
+                layer
+              )
+            ) {
+
+              subdivisionOutlines.addLayer(
+                layer
+              );
+
+            }
+
+
+          }
+
+          else {
+
+
+            if (
+              subdivisionOutlines.hasLayer(
+                layer
+              )
+            ) {
+
+              subdivisionOutlines.removeLayer(
+                layer
+              );
+
+            }
+
+
+          }
+
+
+        }
+
+      );
+
+
+
+      /* ---------------------------------------------
+         COLOURS
+         --------------------------------------------- */
+
+      stateLayers[
+        state
+      ].colours.forEach(
+
+        function(layer) {
+
+
+          if (visible) {
+
+
+            if (
+              !subdivisionColour.hasLayer(
+                layer
+              )
+            ) {
+
+              subdivisionColour.addLayer(
+                layer
+              );
+
+            }
+
+
+          }
+
+          else {
+
+
+            if (
+              subdivisionColour.hasLayer(
+                layer
+              )
+            ) {
+
+              subdivisionColour.removeLayer(
+                layer
+              );
+
+            }
+
+
+          }
+
+
+        }
+
+      );
+
+
+
+      /* ---------------------------------------------
+         LABELS
+         --------------------------------------------- */
+
+      stateLayers[
+        state
+      ].labels.forEach(
+
+        function(layer) {
+
+
+          if (visible) {
+
+
+            if (
+              !subdivisionLabels.hasLayer(
+                layer
+              )
+            ) {
+
+              subdivisionLabels.addLayer(
+                layer
+              );
+
+            }
+
+
+          }
+
+          else {
+
+
+            if (
+              subdivisionLabels.hasLayer(
+                layer
+              )
+            ) {
+
+              subdivisionLabels.removeLayer(
+                layer
+              );
+
+            }
+
+
+          }
+
+
+        }
+
+      );
+
+
+    }
+
+
+
+    /* =====================================================
+       FIND STATE FROM KML FOLDER
+
+       The actual KML contains these folders:
+
+       Victorian subdivisions
+       NSW subdivisions
+       Northern Territory subdivisions
+       QLD subdivisions
+       South Australia subdivisions
+       Western Australia subdivisions
+       ===================================================== */
+
+    function getStateFromPlacemark(
+      placemark
+    ) {
+
+
+      let parent =
+        placemark.parentNode;
+
+
+      while (parent) {
+
+
+        if (
+          parent.nodeType === 1 &&
+          parent.localName === "Folder"
+        ) {
+
+
+          let folderName =
+            "";
+
+
+          /*
+            Read only the Folder's direct child <name>,
+            not the names of its Placemarks.
+          */
+
+          for (
+            const child of parent.children
+          ) {
+
+
+            if (
+              child.localName === "name"
+            ) {
+
+
+              folderName =
+                child.textContent
+                  .trim()
+                  .toLowerCase();
+
+
+              break;
+
+            }
+
+
+          }
+
+
+
+          if (
+            folderName.includes(
+              "victorian"
+            ) ||
+            folderName.includes(
+              "victoria"
+            )
+          ) {
+
+            return "VIC";
+
+          }
+
+
+
+          if (
+            folderName.includes(
+              "nsw"
+            ) ||
+            folderName.includes(
+              "new south wales"
+            )
+          ) {
+
+            return "NSW";
+
+          }
+
+
+
+          if (
+            folderName.includes(
+              "northern territory"
+            )
+          ) {
+
+            return "NT";
+
+          }
+
+
+
+          if (
+            folderName.includes(
+              "qld"
+            ) ||
+            folderName.includes(
+              "queensland"
+            )
+          ) {
+
+            return "QLD";
+
+          }
+
+
+
+          if (
+            folderName.includes(
+              "south australia"
+            )
+          ) {
+
+            return "SA";
+
+          }
+
+
+
+          if (
+            folderName.includes(
+              "western australia"
+            )
+          ) {
+
+            return "WA";
+
+          }
+
+
+        }
+
+
+        parent =
+          parent.parentNode;
+
+
+      }
+
+
+      return null;
+
+
+    }
+
+
+
+    /* =====================================================
        COORDINATE SEARCH
        ===================================================== */
 
-    let currentMarker = null;
+    let currentMarker =
+      null;
 
 
     const coordTypeSelect =
@@ -894,7 +1772,6 @@
 
 
         }
-
 
         else {
 
@@ -1072,7 +1949,6 @@
 
             }
 
-
             catch (err) {
 
 
@@ -1107,9 +1983,6 @@
               val2;
 
 
-            /*
-              Basic validation for decimal coordinates.
-            */
 
             if (
 
@@ -1202,10 +2075,12 @@
 
 
     /* =====================================================
-       ESCAPE KML TEXT FOR SAFE HTML DISPLAY
+       ESCAPE KML TEXT
        ===================================================== */
 
-    function escapeHtml(text) {
+    function escapeHtml(
+      text
+    ) {
 
 
       const div =
@@ -1229,7 +2104,9 @@
        ERROR MESSAGE
        ===================================================== */
 
-    function showError(text) {
+    function showError(
+      text
+    ) {
 
 
       const errorDiv =
